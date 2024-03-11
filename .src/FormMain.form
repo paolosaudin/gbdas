@@ -1,0 +1,287 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,90,84)
+  Icon = Picture["pics/amor.png"]
+  { mnuMain Menu
+    Text = Shortcut(("Main"), "M")
+    { mnuRun Menu
+      Text = Shortcut(("Running"), "R")
+      Picture = Picture["pics/go.png"]
+    }
+    { mnuSep0 Menu
+    }
+    { mnuExit Menu
+      Text = Shortcut(("Exit"), "E")
+      Picture = Picture["pics/quit.png"]
+    }
+  }
+  { mnuSetup Menu
+    Text = Shortcut(("Setup"), "S")
+    { mnuConfigStation Menu
+      Text = Shortcut(("Station"), "S")
+      Picture = Picture["pics/pen.png"]
+    }
+  }
+  { mnuHelpMain Menu
+    Text = Shortcut(("Help"), "H")
+    { mnuAbout Menu
+      Text = Shortcut(("About"), "A")
+      Picture = Picture["pics/about.png"]
+    }
+    { mnuSep1 Menu
+    }
+    { mnuHelp Menu
+      Text = Shortcut(("Help"), "H")
+      Picture = Picture["pics/explorer.png"]
+    }
+  }
+  { mnuPopUp Menu
+    Text = ("Popup")
+    Visible = False
+    { mnuClearEvents Menu
+      Text = Shortcut(("Clear all events"), "C")
+    }
+  }
+  { pnlTop Panel
+    MoveScaled(0,0,60,3)
+    { picDb PictureBox
+      MoveScaled(37,0,1.75,1.75)
+      ToolTip = ("Database status")
+      Picture = Picture.Load("pics/event.png")
+    }
+    { lblInfo Label
+      MoveScaled(26,0,10,2)
+      Text = ("Database :")
+    }
+    { lblInfo1 Label
+      MoveScaled(41,0,9,2)
+      Text = ("Polling :")
+    }
+    { picPolling PictureBox
+      MoveScaled(52,0,4,4)
+      ToolTip = ("Polling status")
+    }
+    { btnPanels ToolButton
+      MoveScaled(0,0,2.625,2.625)
+      ToolTip = ("Toggle between panels")
+      Picture = Picture["pics/info.png"]
+      Toggle = True
+    }
+    { btnTable ToolButton
+      MoveScaled(5.375,0,2.625,2.625)
+      ToolTip = ("Show table")
+      Picture = Picture["pics/table.png"]
+    }
+    { btnChart ToolButton
+      MoveScaled(8,0,2.625,2.625)
+      ToolTip = ("Show chart")
+      Picture = Picture["pics/kchart.png"]
+    }
+  }
+  { btnInst ToolButton
+    MoveScaled(2.625,0,2.625,2.625)
+    ToolTip = ("Get instantaneous values")
+    Picture = Picture["pics/refresh.png"]
+  }
+  { picOk PictureBox
+    MoveScaled(67,18,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/button_ok.png")
+    AutoResize = True
+  }
+  { picNotOk PictureBox
+    MoveScaled(74,18,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/button_cancel.png")
+    AutoResize = True
+  }
+  { picRun PictureBox
+    MoveScaled(70,18,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/history.png")
+    AutoResize = True
+  }
+  { colMain ColumnView
+    MoveScaled(2,5,54,10)
+  }
+  { picPr PictureBox
+    MoveScaled(73.125,21.875,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/arrowr.png")
+    AutoResize = True
+  }
+  { tmrPolling #Timer
+    #MoveScaled(74,9)
+  }
+  { tmrTime #Timer
+    #MoveScaled(67,9)
+    Enabled = True
+  }
+  { picReady PictureBox
+    MoveScaled(70,25,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/ready.png")
+    AutoResize = True
+  }
+  { picRed PictureBox
+    MoveScaled(74.375,25,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/op.png")
+    AutoResize = True
+  }
+  { picGreen PictureBox
+    MoveScaled(72.125,25,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/half.png")
+    AutoResize = True
+  }
+  { picE1 PictureBox
+    MoveScaled(70,28.5,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/information.png")
+    AutoResize = True
+  }
+  { picE3 PictureBox
+    MoveScaled(72.125,30.75,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/critical.png")
+    AutoResize = True
+  }
+  { picE4 PictureBox
+    MoveScaled(70,30.75,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/database.png")
+    AutoResize = True
+  }
+  { picE2 PictureBox
+    MoveScaled(73.5,28.375,2,2)
+    Visible = False
+    Picture = Picture.Load("pics/warning.png")
+    AutoResize = True
+  }
+  { colEvents ColumnView
+    MoveScaled(1,49,57,15)
+    ToolTip = ("Events table")
+    Sorted = True
+    Resizable = True
+  }
+  { panMain Panel
+    MoveScaled(1,17,58,29)
+    Background = Color.White
+    { imgGambas PictureBox
+      MoveScaled(41,3,12,9)
+      Picture = Picture.Load("pics/gambas.svg")
+      Alignment = Align.Right
+    }
+    { Label1 Label
+      MoveScaled(-4,2.125,25,3.125)
+      Alignment = Align.Right
+      Text = ("Station of :")
+    }
+    { lblPicStation Label
+      MoveScaled(23,3,18.75,3.125)
+      AutoResize = True
+      Text = ("lblPicStation")
+    }
+    { Label2 Label
+      MoveScaled(-4,5.75,25,2.25)
+      Alignment = Align.Right
+      Text = ("Code :")
+    }
+    { lblPicCode Label
+      MoveScaled(23,6,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicCode")
+    }
+    { Label3 Label
+      MoveScaled(-4,8.875,25,2.625)
+      Alignment = Align.Right
+      Text = ("Acquisition interval :")
+    }
+    { Label4 Label
+      MoveScaled(-4,12,25,2.625)
+      Alignment = Align.Right
+      Text = ("Integration time :")
+    }
+    { Label5 Label
+      MoveScaled(-4,15.5,25,3)
+      Alignment = Align.Right
+      Text = ("Comunication port :")
+    }
+    { Label6 Label
+      MoveScaled(-4,18.5,25,3)
+      Alignment = Align.Right
+      Text = ("Adam ID :")
+    }
+    { Label7 Label
+      MoveScaled(-4,21.5,25,3)
+      Alignment = Align.Right
+      Text = ("Export FTP files :")
+    }
+    { lblPicAcqInt Label
+      MoveScaled(23,9,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicAcqInt")
+    }
+    { lblPicIntTime Label
+      MoveScaled(23,13,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicIntTime")
+    }
+    { lblPicComPort Label
+      MoveScaled(23,16,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicComPort")
+    }
+    { lblPicAdamId Label
+      MoveScaled(23,19,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicAdamId")
+    }
+    { lblPicFtp Label
+      MoveScaled(23,22,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicFtp")
+    }
+    { PictureBox1 PictureBox
+      MoveScaled(42,17,13,8)
+      Picture = Picture.Load("pics/adam.png")
+    }
+    { Label10 Label
+      MoveScaled(-4,24.5,25,3)
+      Alignment = Align.Right
+      Text = ("Save raw data :")
+    }
+    { lblPicRaw Label
+      MoveScaled(23,25,18.75,2.625)
+      AutoResize = True
+      Text = ("lblPicRaw")
+    }
+  }
+  { pnlBottom Panel
+    MoveScaled(1,69,52.875,3.125)
+    { lblTime Label
+      MoveScaled(30.625,0.875,21.375,1.375)
+      ToolTip = ("Current time")
+      Alignment = Align.Right
+      Text = ("lblTime")
+    }
+    { Label8 Label
+      MoveScaled(0.5,0,11,3)
+      Text = (" Serial port")
+    }
+    { picCom PictureBox
+      MoveScaled(13,1,1.75,1.75)
+      Picture = Picture.Load("pics/ready.png")
+    }
+    { Label9 Label
+      MoveScaled(17,0,11,3)
+      Text = (" Database")
+    }
+    { picDbase PictureBox
+      MoveScaled(27,1,1.75,1.75)
+      Picture = Picture.Load("pics/ready.png")
+    }
+  }
+}

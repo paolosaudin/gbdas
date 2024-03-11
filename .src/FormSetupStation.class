@@ -1,0 +1,436 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : modify settings
+
+' local object reference
+Private ost As ClassStation
+' the parameter being edited/viewed
+Private iPrId As Byte
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' main routine : fill the controls and shows up the form in a modal way
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub ShowForm(o As ClassStation)
+
+    'Dim p As ClassParameter
+
+    ' get a local reference for the use througout the form
+    ost = o
+
+    ' reset the controls
+    RefreshControls
+
+    ' load the curent values
+    txtName.Text = o.Name
+    txtCode.Text = o.Code
+    Select Case o.AcquisitionInterval
+        Case 1
+            cboAcquisition.index = 0
+        Case 2
+            cboAcquisition.index = 1
+        Case 5
+            cboAcquisition.index = 2
+        Case 10
+            cboAcquisition.index = 3
+        Case 30
+            cboAcquisition.index = 4
+        Case Else
+            cboAcquisition.Index = -1
+    End Select
+    Select Case o.IntTime
+        Case 1
+            cboIntegration.index = 0
+        Case 2
+            cboIntegration.index = 1
+        Case 5
+            cboIntegration.index = 2
+        Case 10
+            cboIntegration.index = 3
+        Case 30
+            cboIntegration.index = 4
+        Case 60
+            cboIntegration.index = 5
+        Case Else
+            cboIntegration.Index = -1
+    End Select
+    cboComPort.index = o.ComPort - 1
+    cboAdamId.index = o.AdamId - 1
+    chkFtp.Value = o.FtpExport
+    chkFtpBzip.Value = o.FtpExportBzip
+    chkRaw.Value = o.SaveRawData
+    chkFtpRawData.Value = o.FtpRawData
+
+    ' add al the available parameters to the list
+    RefreshParametersList()
+
+    ' no changes so far
+    btnSave.Enabled = False
+
+    ' show the form in a modal way
+    Me.ShowModal
+
+Catch ' some errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' just some stuff
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub Form_Open()
+
+    Me.Caption = "Editing station"
+    Me.Center()
+
+    ' disable the frame and all the child control as well
+    tabParametes.Visible = False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' save the station changes back into the database & exit
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub btnSave_Click()
+
+    ost.Name = Trim(txtName.Text)
+    ost.Code = Trim(txtCode.Text)
+    Select Case cboAcquisition.Index
+        Case 0
+            ost.AcquisitionInterval = 1
+        Case 1
+            ost.AcquisitionInterval = 2
+        Case 2
+            ost.AcquisitionInterval = 5
+        Case 3
+            ost.AcquisitionInterval = 10
+        Case 4
+            ost.AcquisitionInterval = 30
+    End Select
+    Select Case cboIntegration.Index
+        Case 0
+            ost.IntTime = 1
+        Case 1
+            ost.IntTime = 2
+        Case 2
+            ost.IntTime = 5
+        Case 3
+            ost.IntTime = 10
+        Case 4
+            ost.IntTime = 30
+        Case 5
+            ost.IntTime = 60
+    End Select
+    ost.ComPort = cboComPort.Index + 1
+    ost.AdamId = cboAdamId.Index + 1
+    ost.FtpExport = chkFtp.Value
+    ost.FtpExportBzip = chkFtpBzip.Value
+    ost.SaveRawData = chkRaw.Value
+    ost.FtpRawData = chkFtpRawData.Value
+
+    ' the main ost object is updated as it is a reference
+
+    ' save back to the database
+    If ModuleMain.dbh.SaveStation(ost) Then
+        message.Info("Configuration saved !")
+    Else
+        message.Error("Error saving configuration!")
+    End If
+
+    ' set the flag
+    FormMain.SetupChanged = True
+
+    ' exit
+    Me.Close
+
+Catch ' some errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' exit this window form after changes check
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub btnEsc_Click()
+
+    Dim ret As Variant
+
+    ' if the user has made some changes it warn him
+    If btnSave.Enabled Then
+        ret = message.Question("Configuration has chaned. Do you want to save it?", "Yes", "No")
+        ' save back ?
+        If ret = 1 Then btnSave_Click()
+    End If
+
+    ' close the form
+    Me.Close
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' fill the controls with default values
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sub RefreshControls()
+
+    Dim i As Byte
+
+    cboAcquisition.Add("1 sec")
+    cboAcquisition.Add("2 sec")
+    cboAcquisition.Add("5 sec")
+    cboAcquisition.Add("10 sec")
+    cboAcquisition.Add("30 sec")
+
+    cboIntegration.Add("1 min")
+    cboIntegration.Add("2 min")
+    cboIntegration.Add("5 min")
+    cboIntegration.Add("10 min")
+    cboIntegration.Add("30 min")
+    cboIntegration.Add("60 min")
+
+    cboComPort.Add("ttyS0 - Com1")
+    cboComPort.Add("ttyS1 - Com2")
+    cboComPort.Add("ttyS2 - Com3")
+    cboComPort.Add("ttyS3 - Com4")
+
+    cboAdamId.Add("01")
+    cboAdamId.Add("02")
+    cboAdamId.Add("03")
+
+    ' parameters
+    For i = 0 To 4
+        cboPrDecimals.Add(CStr(i))
+    Next
+
+    cboPrAlgoritm.Add("Mean")
+
+    For i = 1 To 8
+        cboPrChannel.Add("Channel " & CStr(i))
+    Next
+
+    cboPrInputRange.Add("0-10 Volt")
+    cboPrInputRange.Add("0-5 Volt")
+    cboPrInputRange.Add("0-1 Volt")
+    cboPrInputRange.Add("10-10 Volt")
+    cboPrInputRange.Add("5-5 Volt")
+    cboPrInputRange.Add("1-1 Volt")
+
+Catch ' errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' shows up the selected parameter properties
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub lstPars_Click()
+
+    Dim p As ClassParameter
+
+    ' flag to indicate that the user has changed the parameter name
+    ' and we'll have to update the parameter list
+    txtPrName.Tag = ""
+
+    iPrId = lstpars.Index + 1 ' collection starts at one
+
+    ' if the selected parameter exist
+    If ost.Parameters.Exist(CStr(iPrId)) Then
+        p = ost.Parameters[CStr(iPrId)]
+        lblPrId.Caption = p.Id
+        chkPrActive.Value = p.Active
+        txtPrName.Text = p.Name
+        txtPrUnit.Text = p.Unit
+        cboPrDecimals.Index = p.Decimals
+        Select Case p.Algorithm
+            Case "Mean"
+                cboPrAlgoritm.index = 0
+            Case Else
+                cboPrAlgoritm.Index = -1
+        End Select
+        cboPrChannel.Index = p.Channel - 1 ' start at zero
+        Select Case p.InputRange
+            Case "0-10"
+                cboPrInputRange.index = 0
+            Case "0-5"
+                cboPrInputRange.index = 1
+            Case "0-1"
+                cboPrInputRange.index = 2
+            Case "10-10"
+                cboPrInputRange.index = 3
+            Case "5-5"
+                cboPrInputRange.index = 4
+            Case "1-1"
+                cboPrInputRange.index = 5
+            Case Else
+                cboPrInputRange.Index = -1
+        End Select
+        ' properties
+        txtPrLowerPointValue.Text = p.LowerPointValue
+        txtPrHigherPointValue.Text = p.HigherPointValue
+        txtPrSpan.Text = p.Span
+        txtPrOffset.Text = p.Offset
+        ' filters
+        txtPrReadings.Text = p.MinReadings
+        txtPrPreAlarm.Text = p.PreAlarm
+        txtPrAlarm.Text = p.Alarm
+        txtPrMinVar.Text = p.MinVariation
+        txtPrMaxVar.Text = p.MaxVariation
+        txtPrMinValue.Text = p.MinValue
+        txtPrMaxValue.Text = p.MaxValue
+
+        ' enable the frame and all the control as well
+        tabParametes.Visible = True
+
+        ' no changes so far
+        btnPrSave.Enabled = False
+        btnPrCancel.Enabled = False
+
+    End If
+
+Catch ' some errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' abandon the changes made to the current parameter - simply reload it
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub btnPrCancel_Click()
+    ' reload the current parameter
+
+    lstPars_Click
+    ' no changes
+    btnPrSave.Enabled = False
+    btnPrCancel.Enabled = False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' save the changes made to the current parameter
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub btnPrSave_Click()
+
+    Dim p As ClassParameter
+
+    ' get the proper parameter
+    p = ost.Parameters[CStr(iPrId)]
+    ' update all the values
+    ' p.Id this never change
+    p.Active = chkPrActive.Value
+    p.Name = txtPrName.Text
+    p.Unit = txtPrUnit.Text
+    p.Decimals = CInt(cboPrDecimals.Index)
+    p.Algorithm = cboPrAlgoritm.Text
+    p.Channel = cboPrChannel.Index + 1 ' start at 0
+    Select Case cboPrInputRange.index
+        Case 0
+            p.InputRange = "0-10"
+        Case 1
+            p.InputRange = "0-5"
+        Case 2
+            p.InputRange = "0-1"
+        Case 3
+            p.InputRange = "10-10"
+        Case 4
+            p.InputRange = "5-5"
+        Case 5
+            p.InputRange = "1-1"
+        Case Else
+            p.InputRange = "0-10"
+    End Select
+    ' properties
+    p.LowerPointValue = CFloat(txtPrLowerPointValue.Text)
+    p.HigherPointValue = CFloat(txtPrHigherPointValue.Text)
+    p.Span = CFloat(txtPrSpan.Text)
+    p.Offset = CFloat(txtPrOffset.Text)
+    ' filters
+    p.MinReadings = CInt(txtPrReadings.Text)
+    p.PreAlarm = CFloat(txtPrPreAlarm.Text)
+    p.Alarm = CFloat(txtPrAlarm.Text)
+    p.MinVariation = CFloat(txtPrMinVar.Text)
+    p.MaxVariation = CFloat(txtPrMaxVar.Text)
+    p.MinValue = CFloat(txtPrMinValue.Text)
+    p.MaxValue = CFloat(txtPrMaxValue.Text)
+
+    ' check if we must update the name in the list too
+    If txtPrName.Tag = "Changed" Then ' a parameter name has changed
+        ' clear the list
+        lstPars.Clear
+        ' add al the available parameters to the list
+        RefreshParametersList()
+    End If
+
+    ' reset the buttons
+    btnPrSave.Enabled = False
+    btnPrCancel.Enabled = False
+
+    ' configuration has changed
+    btnSave.Enabled = True
+
+Catch ' some errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' load the available parameters in the list
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub RefreshParametersList()
+
+    Dim p As ClassParameter
+    Dim i As Byte
+
+    i = 1
+    For Each p In ost.Parameters
+        lstPars.Add("0" & CStr(i) & "  " & p.Name)
+        i = i + 1
+    Next
+
+Catch ' some errors
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' routines to manage the user changes
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub stChangeEvent_Click()
+    ' enable the save button
+
+    btnSave.Enabled = True
+
+End
+
+Public Sub stChangeEvent_Change()
+    ' enable the save button
+
+    btnSave.Enabled = True
+
+End
+
+Public Sub prChangeEvent_Click()
+    ' enable the save button
+
+    btnPrCancel.Enabled = True
+    btnPrSave.Enabled = True
+
+End
+
+Public Sub prChangeEvent_Change()
+    ' enable the save button
+
+    btnPrCancel.Enabled = True
+    btnPrSave.Enabled = True
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' use the tag property to reload the parameter list name after saving
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub txtPrName_Change()
+
+    btnPrCancel.Enabled = True
+    btnPrSave.Enabled = True
+    txtPrName.Tag = "Changed"
+
+End

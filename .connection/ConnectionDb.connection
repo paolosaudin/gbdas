@@ -1,0 +1,11 @@
+[Connection]
+Type="sqlite"
+Path="db"
+NoPassword=False
+RememberPassword=False
+IgnoreCharset=False
+DisplayMetadata=False
+RememberTemplate=False
+Database="gbdas.sqlite"
+Requests=[""]
+

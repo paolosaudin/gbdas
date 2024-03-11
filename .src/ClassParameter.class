@@ -1,0 +1,365 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : public variables and objects
+'
+Property Id As Byte ' parameter's unique ID
+Property Active As Boolean
+Property Name As String
+Property Unit As String
+Property Decimals As Byte
+Property Algorithm As String
+Property Channel As Byte
+Property InputRange As String
+Property LowerPointValue As Float
+Property HigherPointValue As Float
+Property Span As Float
+Property Offset As Float
+' filters
+Property MinReadings As Short
+Property PreAlarm As Float
+Property Alarm As Float
+Property MinVariation As Float
+Property MaxVariation As Float
+Property MinValue As Float
+Property MaxValue As Float
+' carry the data
+Property Data As ClassParameterData
+
+Private iId As Byte
+Private bActive As Boolean
+Private sName As String
+Private sUnit As String
+Private iDecimals As Byte
+Private sAlgorithm As String
+Private iChannel As Byte
+Private sInputRange As String
+Private fLowerPointValue As Float
+Private fHigherPointValue As Float
+Private fSpan As Float
+Private fOffset As Float
+' filters
+Private iMinReadings As Short
+Private fPreAlarm As Float
+Private fAlarm As Float
+Private fMinVariation As Float
+Private fMaxVariation As Float
+Private fMinValue As Float
+Private fMaxValue As Float
+' carry the data
+Private oData As ClassParameterData
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+
+    iId = 0
+    bActive = False
+    sName = ""
+    sUnit = ""
+    iDecimals = 0
+    sAlgorithm = 0
+    iChannel = 0
+    sInputRange = 0
+    fLowerPointValue = 0
+    fHigherPointValue = 0
+    fSpan = 0
+    fOffset = 0
+    ' filters
+    iMinReadings = 0
+    fPreAlarm = -99999
+    fAlarm = -99999
+    fMinVariation = 0
+    fMaxVariation = 99999
+    fMinValue = 99999
+    fMaxValue = -99999
+
+    ' data properties
+    oData = New ClassParameterData
+    With oData
+        .RawValue = 0
+        .LastValue = 0
+        .PreviousValue = 0
+        .TotalValue = 0
+        .Mean = 0
+        .ValCode = 0
+        .Minimun = 99999
+        .Maximum = -99999
+        .MinimumTime = "00:00:00"
+        .MaximumTime = "00:00:00"
+        .Readings = 0
+        .StdDev = 0
+    End With
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' destructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _free()
+
+    oData = Null
+
+End
+
+' Implements the Id property
+Function Id_Read() As Byte
+
+    Return iId
+
+End
+
+Sub Id_Write(Value As Byte)
+
+    iId = Value
+
+End
+
+' Implements the Active property
+Function Active_Read() As Boolean
+
+    Return bActive
+
+End
+
+Sub Active_Write(Value As Boolean)
+
+    bActive = Value
+
+End
+
+' Implements the Name property
+Function Name_Read() As String
+
+    Return sName
+
+End
+
+Sub Name_Write(Value As String)
+
+    sName = Value
+
+End
+
+' Implements the Unit property
+Function Unit_Read() As String
+
+    Return sUnit
+
+End
+
+Sub Unit_Write(Value As String)
+
+    sUnit = Value
+
+End
+
+' Implements the Decimals property
+Function Decimals_Read() As Byte
+
+    Return iDecimals
+
+End
+
+Sub Decimals_Write(Value As Byte)
+
+    iDecimals = Value
+
+End
+
+' Implements the Algorithm property
+Function Algorithm_Read() As String
+
+    Return sAlgorithm
+
+End
+
+Sub Algorithm_Write(Value As String)
+
+    sAlgorithm = Value
+
+End
+
+' Implements the Channel property
+Function Channel_Read() As Byte
+
+    Return iChannel
+
+End
+
+Sub Channel_Write(Value As Byte)
+
+    iChannel = Value
+
+End
+
+' Implements the InputRange property
+Function InputRange_Read() As String
+
+    Return sInputRange
+
+End
+
+Sub InputRange_Write(Value As String)
+
+    sInputRange = Value
+
+End
+
+' Implements the LowerPointValue property
+Function LowerPointValue_Read() As Float
+
+    Return fLowerPointValue
+
+End
+
+Sub LowerPointValue_Write(Value As Float)
+
+    fLowerPointValue = Value
+
+End
+
+' Implements the HigherPointValue property
+Function HigherPointValue_Read() As Float
+
+    Return fHigherPointValue
+
+End
+
+Sub HigherPointValue_Write(Value As Float)
+
+    fHigherPointValue = Value
+
+End
+
+' Implements the Span property
+Function Span_Read() As Float
+
+    Return fSpan
+
+End
+
+Sub Span_Write(Value As Float)
+
+    fSpan = Value
+
+End
+
+' Implements the Offset  property
+Function Offset_Read() As Float
+
+    Return fOffset
+
+End
+
+Sub Offset_Write(Value As Float)
+
+    fOffset = Value
+
+End
+
+' Implements the MinReadings property
+Function MinReadings_Read() As Short
+
+    Return iMinReadings
+
+End
+
+Sub MinReadings_Write(Value As Short)
+
+    iMinReadings = Value
+
+End
+
+' Implements the PreAlarm property
+Function PreAlarm_Read() As Float
+
+    Return fPreAlarm
+
+End
+
+Sub PreAlarm_Write(Value As Float)
+
+    fPreAlarm = Value
+
+End
+
+' Implements the Alarm property
+Function Alarm_Read() As Float
+
+    Return fAlarm
+
+End
+
+Sub Alarm_Write(Value As Float)
+
+    fAlarm = Value
+
+End
+
+' Implements the MinVariation property
+Function MinVariation_Read() As Float
+
+    Return fMinVariation
+
+End
+
+Sub MinVariation_Write(Value As Float)
+
+    fMinVariation = Value
+
+End
+
+' Implements the MaxVariation property
+Function MaxVariation_Read() As Float
+
+    Return fMaxVariation
+
+End
+
+Sub MaxVariation_Write(Value As Float)
+
+    fMaxVariation = Value
+
+End
+
+' Implements the MinValue property
+Function MinValue_Read() As Float
+
+    Return fMinValue
+
+End
+
+Sub MinValue_Write(Value As Float)
+
+    fMinValue = Value
+
+End
+
+' Implements the MaxValue property
+Function MaxValue_Read() As Float
+
+    Return fMaxValue
+
+End
+
+Sub MaxValue_Write(Value As Float)
+
+    fMaxValue = Value
+
+End
+
+' Implements the Data property
+Function Data_Read() As ClassParameterData
+
+    Return oData
+
+End
+
+Sub Data_Write(Value As ClassParameterData)
+
+    oData = Value
+
+End

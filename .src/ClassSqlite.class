@@ -1,0 +1,463 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : manage a MySql database
+'
+Property Host As String
+Property Db As String
+
+Private sHost As String
+Private sDb As String
+Private $hConn As New Connection
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+    ' default values
+
+    sHost = ""
+    sDb = ""
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' destructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _free()
+
+    Me.ServerDisconnect
+    $hConn = Null
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' connect to the database
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function ServerConnect() As Boolean
+
+    ' try to close the connection
+    Try $hConn.Close
+
+    ' Dim $con As New Connection
+    ' Try $con.Close()             ' Close the connection. The try allows it to fail without error
+    ' $con.Type = "sqlite3"        ' Defines the type of connection
+    ' $con.Host = Application.path ' Host will be the path where the sqlite db file is
+    ' $con.Name = "test.sqlite"    ' database name is the name of the database file
+    ' $con.Open()                  ' We activate and open the connection, the try is to allow an error
+    '
+    ' Print "Connected? : " & $con.Opened ' It will return TRUE or FALSE depending on whether "try $con.Open()" was successful in "conectarodbc()"
+
+    With $hConn
+        .Type = "sqlite3"
+        .Host = sHost
+        .Name = sDb
+        ' really connect
+        .Open
+    End With
+
+    ' all ok
+    Return True
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' disconnect from the database
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function ServerDisconnect() As Boolean
+
+    ' try to close the connection
+    Try $hConn.Close
+
+    ' all ok
+    Return True
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' load the station configuration
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function LoadStation() As ClassStation
+
+    Dim s As String
+    Dim rs As Result
+    Dim bFE As Boolean
+    Dim p As ClassParameter
+    Dim i As Byte
+    Dim bBoo As Boolean
+    Dim cStation As ClassStation
+
+    ' execute the query
+    s = "SELECT * FROM station"
+    rs = $hConn.Exec(s)
+
+    ' get the values
+    cStation = New ClassStation
+    cStation.Code = rs!Code
+    cStation.Name = rs!Name
+    cStation.Code = rs!Code
+    cStation.AcquisitionInterval = rs!AcquisitionInterval
+    cStation.IntTime = rs!IntTime
+    cStation.ComPort = rs!ComPort
+    cStation.AdamId = rs!AdamId
+    bFE = False
+    If rs!FtpExport = "Y" Then bFE = True
+    cStation.FtpExport = bFE
+    bFE = False
+    If rs!FtpExportBzip = "Y" Then bFE = True
+    cStation.FtpExportBzip = bFE
+    bFE = False
+    If rs!SaveRawData = "Y" Then bFE = True
+    cStation.SaveRawData = bFE
+    bFE = False
+    If rs!FtpRawData = "Y" Then bFE = True
+    cStation.FtpRawData = bFE
+
+    ' add all the available parameters (8)
+    ' execute the query
+    s = "SELECT * FROM parameters order by Id"
+    rs = $hConn.Exec(s)
+    For i = 1 To rs.Count
+        p = New ClassParameter
+        p.Id = rs!Id
+        bBoo = False
+        If rs!Active = "Y" Then bBoo = True
+        p.Active = bBoo
+        p.Name = rs!Name
+        p.Unit = rs!Unit
+        p.Decimals = rs!Decimals
+        p.Algorithm = rs!Algorithm
+        p.Channel = rs!Channel
+        p.InputRange = rs!InputRange
+        p.LowerPointValue = rs!LowerPointValue
+        p.HigherPointValue = rs!HigherPointValue
+        p.Span = rs!Span
+        p.Offset = rs!Offset
+        p.MinReadings = rs!MinReadings
+        p.PreAlarm = rs!PreAlarm
+        p.Alarm = rs!Alarm
+        p.MinVariation = rs!MinVariation
+        p.MaxVariation = rs!MaxVariation
+        p.MinValue = rs!MinValue
+        p.MaxValue = rs!MaxValue
+
+        ' add the new parameter
+        cStation.Parameters.Add(p, CStr(i))
+        ' next record
+        rs.MoveNext
+    Next
+
+    ' all ok
+    Return cStation
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    ' some error we return a null value
+    Return Null
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' save the station configuration
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function SaveStation(cStation As ClassStation) As Boolean
+
+    Dim s As String
+    Dim rs As Result
+    Dim sFE As String
+
+    Dim p As ClassParameter
+
+    ' get the sql statement
+    s = "UPDATE station SET "
+    s = s & "Name='" & cStation.Name & "', "
+    s = s & "Code='" & cStation.Code & "', "
+    s = s & "AcquisitionInterval=" & cStation.AcquisitionInterval & ", "
+    s = s & "IntTime=" & cStation.IntTime & ", "
+    s = s & "ComPort=" & cStation.ComPort & ", "
+    s = s & "AdamId=" & cStation.AdamId & ", "
+    sFE = "N"
+    If cStation.FtpExport = True Then sFE = "Y"
+    s = s & "FtpExport='" & sFE & "', "
+    sFE = "N"
+    If cStation.FtpExportBzip = True Then sFE = "Y"
+    s = s & "FtpExportBzip='" & sFE & "', "
+    sFE = "N"
+    If cStation.SaveRawData = True Then sFE = "Y"
+    s = s & "SaveRawData='" & sFE & "', "
+    sFE = "N"
+    If cStation.FtpRawData = True Then sFE = "Y"
+    s = s & "FtpRawData='" & sFE & "' "
+    s = s & "WHERE id=1"
+    ' execute the query
+    rs = $hConn.Exec(s)
+
+    ' update all the available parameters (8)
+    For Each p In cStation.Parameters
+        ' get the sql statement
+        s = "UPDATE parameters SET "
+        If p.Active Then
+            s = s & "Active='Y', "
+        Else
+            s = s & "Active='N', "
+        End If
+        s = s & "Name='" & p.Name & "', "
+        s = s & "Unit='" & p.Unit & "', "
+        s = s & "Decimals=" & p.Decimals & ", "
+        Select Case p.Algorithm
+            Case "Mean"
+                s = s & "Algorithm='Mean', "
+            Case Else
+                s = s & "Algorithm='Free', "
+        End Select
+        s = s & "Channel=" & p.Channel & ", "
+        s = s & "InputRange='" & p.InputRange & "', "
+        s = s & "LowerPointValue=" & p.LowerPointValue & ", "
+        s = s & "HigherPointValue=" & p.HigherPointValue & ", "
+        s = s & "Span=" & p.Span & ", "
+        s = s & "Offset=" & p.Offset & ", "
+        s = s & "MinReadings=" & p.MinReadings & ", "
+        s = s & "PreAlarm=" & p.PreAlarm & ", "
+        s = s & "Alarm=" & p.Alarm & ", "
+        s = s & "MinVariation=" & p.MinVariation & ", "
+        s = s & "MaxVariation=" & p.MaxVariation & ", "
+        s = s & "MinValue=" & p.MinValue & ", "
+        s = s & "MaxValue=" & p.MaxValue & " "
+        s = s & "WHERE Id=" & p.Id
+        ' execute the query
+        rs = $hConn.Exec(s)
+    Next
+
+    ' all ok
+    Return True
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' save a new mean
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function SaveNewMean(st As ClassStation) As Boolean
+
+    Dim s As String
+    Dim sp As String
+    Dim sSqls As String
+    Dim sFtps As String
+    Dim rs As Result
+    Dim p As ClassParameter
+
+    ' update all the available parameters (8)
+    For Each p In st.Parameters
+        ' only active parameters
+        If p.Active Then
+            ' get the sql statement
+            s = "INSERT INTO data (Fulldate, StationAlarm, Id, MeanValue, "
+            s = s & "Code, Readings, Min, MinTime, Max, MaxTime, StdDev) "
+            s = s & "VALUES ("
+            sp = "'" & Format(Now, "yyyy-mm-dd hh:nn:00") & "', " ' we round up to flat minutes
+            sp = sp & st.Alarm & ", "
+            sp = sp & p.Id & ", "
+            sp = sp & p.Data.Mean & ", "
+            sp = sp & p.Data.ValCode & ", "
+            sp = sp & p.Data.Readings & ", "
+            sp = sp & p.Data.Minimun & ", '"
+            sp = sp & p.Data.MinimumTime & "', "
+            sp = sp & p.Data.Maximum & ", '"
+            sp = sp & p.Data.MaximumTime & "', "
+            sp = sp & p.Data.StdDev
+            s = s & sp & ")"
+            ' execute the query
+            rs = $hConn.Exec(s)
+            '--------- save the data in two variables----------
+            sSqls = sSqls & s & Chr$(10) ' SQL log files
+            sFtps = sFtps & sP & Chr$(10) ' FTP export files
+        End If
+    Next
+
+    sSqls = Mid(sSqls, 1, Len(sSqls) - 1) ' remove the last vbcrlf
+    sFtps = Mid(sFtps, 1, Len(sFtps) - 1) ' remove the last vbcrlf
+
+    ' export the sql statement (always)
+    FtpExport(0, sSqls, st.Code)
+    ' export the ftp data
+    If st.FtpExport Then FtpExport(1, sFtps, st.Code)
+    ' compress the ftp file in bz2 format
+
+    If st.FtpExportBzip Then CompressFile(st.Code)
+
+    ' all ok
+    Return True
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' save a new mean
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function SaveRawValues(st As ClassStation) As Boolean
+
+    Dim s As String
+    Dim sp As String
+    Dim sFtps As String
+    Dim rs As Result
+    Dim p As ClassParameter
+
+    ' update all the available parameters (8)
+    For Each p In st.Parameters
+        ' only active parameters
+        If p.Active Then
+            ' get the sql statement
+            s = "INSERT INTO rawdata (Fulldate, Id, RawValue, Code) "
+            s = s & "VALUES ("
+            sp = "'" & Format(Now, "yyyy-mm-dd hh:nn:ss") & "', "
+            sp = sp & p.Id & ", "
+            sp = sp & p.Data.LastValue & ", "
+            sp = sp & p.Data.ValCode
+            s = s & sp & ")"
+            ' execute the query
+            rs = $hConn.Exec(s)
+            '--------- save the data in two variables----------
+            sFtps = sFtps & sP & Chr$(10) ' FTP export files
+        End If
+    Next
+
+    sFtps = Mid(sFtps, 1, Len(sFtps) - 1) ' remove the last vbcrlf
+
+    ' export the ftp data if requested
+    If st.FtpRawData Then FtpExport(2, sFtps, st.Code)
+
+    ' all ok
+    Return True
+
+Catch ' some errors
+    LogError(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' append data to the ftp file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub FtpExport(typ As Byte, dat As String, id As String)
+
+    Dim outFile As String
+    Dim hFile As File
+
+    ' get the log file name
+    Select Case typ
+        Case 0 ' SQL format
+            outFile = Application.Path &/ "logs" &/ id & "-sql-" & Format(Now, "yyyy-mm") & ".dat"
+        Case 1 ' FTP mean format
+            outFile = Application.Path &/ "ftp" &/ id & "-" & Format(Now, "yyyy-mm-dd") & ".dat"
+        Case 2 ' FTP raw format
+            outFile = Application.Path &/ "ftp/raw" &/ id & "-raw-" & Format(Now, "yyyy-mm-dd") & ".dat"
+    End Select
+
+    ' open the file
+    hFile = Open outFile For Append
+
+    ' write down to the file
+    Print #hFile, dat
+
+Finally ' Always executed, even if an error raised
+
+    Close #hFile
+
+Catch ' Executed only if there is an error
+    LogError(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' append data to the ftp file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub CompressFile(id As String)
+
+    Dim sCmd As String
+    Dim outFile As String
+
+    ' get the export file name
+    outFile = "ftp" &/ id & "-" & Format(Now, "yyyy-mm-dd")
+
+    'tar cfvj ME.bz2 ftp/ST50-2004-07-02.dat
+    sCmd = "cd '" & (Application.Path) & "';"
+    sCmd = sCmd & " tar cfvj " & outFile & ".bz2 "
+    sCmd = sCmd & " " & outFile & ".dat > /dev/null"
+
+    'execute the command
+    Shell sCmd Wait
+
+Catch ' Executed only if there is an error
+    LogError(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' log any error into a flat file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Private Sub LogError(msg As String)
+
+    Dim LogFile As String
+    Dim hFile As File
+
+    ' get the mysql log file name
+    LogFile = Application.Path &/ "logs/mysql-" & Format(Now, "yyyy-mm") & ".log"
+
+    ' open the file
+    hFile = Open LogFile For Append
+
+    ' add the date and time
+    msg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & msg
+
+    ' write down to the file
+    Print #hFile, msg
+
+Finally ' Always executed, even if an error raised
+
+    Close #hFile
+
+Catch ' Executed only if there is an error
+    ' do nothing
+
+End
+
+' Implements the Host property
+Function Host_Read() As String
+
+    Return sHost
+
+End
+
+Sub Host_Write(sValue As String)
+
+    sHost = sValue
+
+End
+
+' Implements the Db property
+Function Db_Read() As String
+
+    Return sDb
+
+End
+
+Sub Db_Write(sValue As String)
+
+    sDb = sValue
+
+End

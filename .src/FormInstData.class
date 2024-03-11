@@ -1,0 +1,107 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : show the instantaneous values
+'
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor : set the column view columns
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+
+    With colRawData
+        .Clear
+        .Columns.Count = 2
+        .Columns[0].Text = "id"
+        .Columns[0].Width = 150
+        .Columns[1].Text = "Raw value"
+        .Columns[1].Expand = True
+    End With
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' load all the form and show the raw values
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub ShowValues()
+
+    ' get new values and show them
+    btnRefresh_Click
+
+    ' show the form
+    Me.ShowModal
+
+Catch ' error handling
+    Message.Error(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get the values and load them all into a column view control
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub btnRefresh_Click()
+
+    Dim fArr As Float[]
+    Dim f As Float
+    Dim i As Byte
+    Dim k As String
+
+    ' draw the serial port led
+    FormMain.DrawEvent("com", "on")
+
+    ' get the raw values
+    fArr = ModuleMain.adm.Adam_4017Input(ModuleMain.ost.AdamId)
+
+    ' draw the serial port led
+    FormMain.DrawEvent("com", "off")
+
+    ' clear the column list
+    colRawData.Clear
+
+    ' add the fresh data
+    i = 1
+    For Each f In fArr
+        k = Format(i, "0#")
+        colRawData.Add(k, "Ch #" & Str(i))
+        colRawData[k][1] = Str(f)
+        ' increment the ids
+        Inc i
+    Next
+
+Catch ' error handling
+    Message.Error(ERROR.Text)
+
+End
+
+Public Sub Form_Resize()
+
+    colRawData.H = Me.H - colRawData.Top - btnEsc.Height - 8
+    colRawData.Width = Me.Width
+
+    btnEsc.Top = Me.H - btnEsc.H - 4
+    btnRefresh.Top = btnEsc.Top
+
+Catch ' error handling
+    Message.Error(ERROR.Text)
+
+End
+
+Public Sub btnEsc_Click()
+
+    Me.Close
+
+End
+
+Public Sub colRawData_KeyPress()
+
+    ' exit if user press ESC
+    If Key.Code = Key["Esc"] Then Me.Close
+
+End
+
+Public Sub Form_Open()
+
+    Me.Text = "Istantaneois data"
+
+End

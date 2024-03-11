@@ -1,0 +1,57 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,87,53)
+  Icon = Picture["pics/kchart.png"]
+  Resizable = False
+  { da DrawingArea
+    MoveScaled(0,0,55,29)
+    Font = Font["Liberation Mono,+3"]
+    Background = &HFFFFFF
+    Mouse = Cursor.Cross
+    Border = Border.Plain
+  }
+  { cboScaleMax ComboBox
+    MoveScaled(58.5,4.5,11.5,3.5)
+    ReadOnly = True
+    Text = (" ")
+  }
+  { PictureBox1 PictureBox
+    MoveScaled(55.5,1,2,2)
+    Picture = Picture.Load("pics/axisy.png")
+  }
+  { cboScaleMin ComboBox
+    MoveScaled(58.5,0.5,11.5,3.5)
+    ReadOnly = True
+    Text = (" ")
+  }
+  { PictureBox2 PictureBox
+    MoveScaled(55.5,9.5,2,2)
+    Picture = Picture.Load("pics/axisx.png")
+  }
+  { cboCount ComboBox
+    MoveScaled(58.5,9,11.5,3.5)
+    ReadOnly = True
+    Text = (" ")
+  }
+  { btnEsc Button
+    MoveScaled(59,25,11,3)
+    ToolTip = ("Exit without saving changes")
+    Text = Shortcut(("Esc"), "E")
+    Picture = Picture["pics/button_cancel.png"]
+  }
+  { PictureBox3 PictureBox
+    MoveScaled(56,14,2,2)
+    Picture = Picture.Load("pics/parameter.png")
+  }
+  { cboParameter ComboBox
+    MoveScaled(58.5,13,11.5,3.5)
+    ReadOnly = True
+    Text = (" ")
+  }
+  { btnClear Button
+    MoveScaled(58.5,18.5,11.5,2.5)
+    Text = ("Clear")
+    Picture = Picture["pics/trash.png"]
+  }
+}

@@ -1,0 +1,195 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : public variables and objects
+'
+Public Parameters As Collection
+Public Parameter As ClassParameter
+
+Property Name As String
+Property Code As String
+Property AcquisitionInterval As Byte
+Property IntTime As Byte
+Property ComPort As Byte
+Property AdamId As Byte
+Property FtpExport As Boolean
+Property FtpExportBzip As Boolean
+Property SaveRawData As Boolean
+Property FtpRawData As Boolean
+' not in the station table
+Property Alarm As Byte 'still to be treated
+
+Private sName As String
+Private sCode As String
+Private iAcquisitionInterval As Byte
+Private iIntTime As Byte
+Private iComPort As Byte
+Private iAdamId As Byte
+Private bFtpExport As Boolean
+Private bFtpExportBzip As Boolean
+Private bSaveRawData As Boolean
+Private bFtpRawData As Boolean
+' not in the station table
+Private iAlarm As Byte
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+
+    Parameters = New Collection
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' destructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _free()
+
+    Parameters = Null
+
+End
+
+' Implements the Name property
+Function Name_Read() As String
+
+    Return sName
+
+End
+
+Sub Name_Write(sValue As String)
+
+    sName = sValue
+
+End
+
+' Implements the Code property
+Function Code_Read() As String
+
+    Return sCode
+
+End
+
+Sub Code_Write(sValue As String)
+
+    sCode = Lower(sValue)
+
+End
+
+' Implements the AcquisitionInterval property
+Function AcquisitionInterval_Read() As Byte
+
+    Return iAcquisitionInterval
+
+End
+
+Sub AcquisitionInterval_Write(sValue As Byte)
+
+    iAcquisitionInterval = sValue
+
+End
+
+' Implements the IntTime property
+Function IntTime_Read() As Byte
+
+    Return iIntTime
+
+End
+
+Sub IntTime_Write(sValue As Byte)
+
+    iIntTime = sValue
+
+End
+
+' Implements the ComPort property
+Function ComPort_Read() As Byte
+
+    Return iComPort
+
+End
+
+Sub ComPort_Write(sValue As Byte)
+
+    iComPort = sValue
+
+End
+
+' Implements the AdamId property
+Function AdamId_Read() As Byte
+
+    Return iAdamId
+
+End
+
+Sub AdamId_Write(sValue As Byte)
+
+    iAdamId = sValue
+
+End
+
+' Implements the FtpExport property
+Function FtpExport_Read() As Boolean
+
+    Return bFtpExport
+
+End
+
+Sub FtpExport_Write(sValue As Boolean)
+
+    bFtpExport = sValue
+
+End
+
+' Implements the FtpExportBzip property
+Function FtpExportBzip_Read() As Boolean
+
+    Return bFtpExportBzip
+
+End
+
+Sub FtpExportBzip_Write(sValue As Boolean)
+
+    bFtpExportBzip = sValue
+
+End
+
+' Implements the SaveRawData property
+Function SaveRawData_Read() As Boolean
+
+    Return bSaveRawData
+
+End
+
+Sub SaveRawData_Write(sValue As Boolean)
+
+    bSaveRawData = sValue
+
+End
+
+' Implements the FtpRawData property
+Function FtpRawData_Read() As Boolean
+
+    Return bFtpRawData
+
+End
+
+Sub FtpRawData_Write(sValue As Boolean)
+
+    bFtpRawData = sValue
+
+End
+
+' Implements the Alarm property
+Function Alarm_Read() As Byte
+
+    Return iAlarm
+
+End
+
+Sub Alarm_Write(sValue As Byte)
+
+    iAlarm = sValue
+
+End

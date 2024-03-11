@@ -1,0 +1,293 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : draw a plot-like real-time chart
+
+' data array
+Private v As New Variant[]
+Private d As New Variant[]
+Private n As Integer
+' draw
+Private fDivX As Float
+Private fDivY As Float
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' draw the chart made up of v array of data (y is the array holding the latest values)
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub DrawChart(y As Variant[])
+
+    Dim i As Integer
+    Dim preX As Integer
+    Dim preY As Integer
+    Dim newX As Integer
+    Dim newY As Integer
+    Dim yOffset As Integer
+    Dim c As Integer
+    Dim vMin As Float
+    Dim vMax As Float
+    Dim r As Integer
+
+    ' get the max and minimum X axis values
+    vMin = Val(cboScaleMin.Text)
+    vMax = Val(cboScaleMax.Text)
+
+    ' add the incoming value to the array
+    v.add(y[cboParameter.Index + 1])
+    Inc n
+    d.add(CStr(n)) ' auto increment number
+
+    ' items count
+    r = v.Count
+
+    'Return
+
+    ' too few items
+    If r < 2 Then Return
+
+    ' too many items
+    If r > CInt(cboCount.Text) Then
+        v.Remove(0, r - CInt(cboCount.Text))
+        d.Remove(0, r - CInt(cboCount.Text))
+    End If
+
+    ' calculate some variables
+    fDivX = CFloat(da.W) / (v.Count - 1)
+    fDivY = CFloat(da.H) / CFloat(vMax - vMin)
+    yOffset = vMin * fDivY
+    'PRINT fDivX, fDivY, yOffset
+
+    ' clear up the drawing areas
+    'da.Clear
+    'da.Refresh
+    'da.Show
+    ' daXaxis.Clear
+    ' daXaxis.Refresh
+    ' daYaxis.Clear
+    ' daYaxis.Refresh
+
+    c = 0
+    ' draw X axis
+    ' With paint
+    '     .Begin(daXaxis)
+    '     For i = 0 To da.W Step fDivX * 2
+    '         .Line(i, 0, i, 10)
+    '         'PRINT i,0,i,8
+    '         Try .Text(CStr(d[c]), i - 2, 12)
+    '         c = c + 2
+    '     Next
+    '     .End
+    ' End With
+    '
+    ' ' draw Y axis
+    ' With DRAW
+    '     .Begin(daYaxis)
+    '     For i = 0 To vMax + Abs(vMin) Step ((vMax + Abs(vMin)) / 5)
+    '         .Line(daYaxis.W - 10, i * fDivY, daYaxis.W, i * fDivY)
+    '         'PRINT daYaxis.W-10,i*fDivY,daYaxis.W,i*fDivY
+    '         .Text(Str(vMax - i), daYaxis.W - 35, i * fDivY)
+    '     Next
+    '     .End
+    ' End With
+
+    ' With DRAW
+    '     .Begin(da)
+    '
+    '     ' draw X grid
+    '     .LineStyle = 3
+    '     .ForeColor = color.White
+    '     c = 0
+    '     For i = 0 To da.W Step fDivX * 2
+    '         .Line(i, 0, i, da.H)
+    '         c = c + 2
+    '     Next
+    '
+    '     ' draw Y grid
+    '     .LineStyle = 3
+    '     .ForeColor = color.White
+    '     For i = 0 To vMax + Abs(vMin) Step ((vMax + Abs(vMin)) / 5)
+    '         .Line(0, i * fDivY, da.W, i * fDivY)
+    '     Next
+    '
+    '     '''''''''''''''''''''''''''''''' draw the chart '''''''''''''''''''''''''''
+    '     ' pen color
+    '     .ForeColor = color.Yellow
+    '     .LineStyle = 1
+    '     .LineWidth = 2
+    '
+    '     ' get the first point position
+    '     preX = 0
+    '     preY = da.H - CInt(v[0] * fDivY) + yOffset
+    '
+    '     ' draw all the points
+    '     For i = 1 To v.Count - 1
+    '         newX = CInt((i) * fDivX)
+    '         newY = da.H - CInt(v[i] * fDivY) + yOffset
+    '         'PRINT preX, preY, newX, newY, "V=", v[i]
+    '         .Line(preX, preY, newX, newY)
+    '         ' swap
+    '         preX = newX
+    '         preY = newY
+    '     Next
+    '
+    '     .end
+    ' End With
+
+    Dim tValues As New Variant[]
+    Dim fValues1 As New Float[]
+    Dim fValues2 As New Float[]
+
+    For i = 0 To v.Count - 1
+        'newX = CInt((i) * fDivX)
+        'newY = da.H - CInt(v[i] * fDivY) + yOffset
+        'PRINT preX, preY, newX, newY, "V=", v[i]
+        '.Line(preX, preY, newX, newY)
+        ' swap
+        'preX = newX
+        'preY = newY
+
+        tValues.Add(i)
+        fValues1.Add(v[i])
+    Next
+
+    'Chart.CountDataSets = 2                                                         'How many data sets do you require = 2
+    'Chart.Headers.Values = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] 'Header values
+    Chart.Headers.Values = tValues
+    Chart.Title.Text = cboParameter.Text                                                    'Chart heading
+    'Chart[0].Values = [20, 50, 10, 60, 30]                                          'Chart initial values
+    'Chart[1].Values = [15, 85, 25, 35, 55]                                          'Chart initial values
+    Chart[0].Values = fValues1
+    'Chart[1].Values = fValues2
+    Chart.Legend.Visible = True                                                     'Makes the Legend visible
+    Chart.Legend.Title = "Readings"                                                     'Title of chart
+    Chart.Type = ChartType.Lines                                                    'Type of chart
+    da.Refresh                                                            'Refresh the Drawing area
+
+
+Catch ' errors
+    Message.Error(Error.Text)
+
+End
+
+Public Sub Form_Open()
+
+    Dim i As Integer
+
+    Me.Caption = "Plot data"
+    Me.Center()
+
+    ' the form is visible
+    ModuleMain.FChart = True
+
+    cboScaleMin.Add("0")
+    cboScaleMin.Add("-1")
+    cboScaleMin.Add("-5")
+    cboScaleMin.Add("-10")
+    cboScaleMin.Add("-50")
+    cboScaleMin.Add("-100")
+    cboScaleMin.Index = 0
+
+    cboScaleMax.Add("0")
+    cboScaleMax.Add("1")
+    cboScaleMax.Add("5")
+    cboScaleMax.Add("10")
+    cboScaleMax.Add("50")
+    cboScaleMax.Add("100")
+    cboScaleMax.Add("250")
+    cboScaleMax.Add("500")
+    cboScaleMax.Add("1000")
+    cboScaleMax.Add("2500")
+    cboScaleMax.Index = 4
+
+    cboCount.Add("10")
+    cboCount.Add("20")
+    cboCount.Add("30")
+    cboCount.Add("40")
+    cboCount.Add("50")
+    cboCount.Index = 1
+
+    For i = 1 To 8
+        cboParameter.Add(ModuleMain.ost.Parameters[i].Name)
+    Next
+    cboParameter.Index = 0
+
+    Chart.CountDataSets = 1                                                         'How many data sets do you require = 2
+    ' Chart.Headers.Values = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] 'Header values
+    ' Chart.Title.Text = "Percent"                                                    'Chart heading
+    ' Chart[0].Values = [20, 50, 10, 60, 30]                                          'Chart initial values
+    'Chart[1].Values = [15, 85, 25, 35, 55]                                          'Chart initial values
+    'Chart.Legend.Visible = True                                                     'Makes the Legend visible
+    Chart.Legend.Title = "Data chart"                                                     'Title of chart
+    Chart.Type = ChartType.Lines                                                    'Type of chart
+    Chart.BackGround = Color.White                                                   'Sets the background colour
+    Chart.Border = False                                                            'Gets rid of the border
+    da.Refresh                                                            'Refresh the Drawing area
+
+    'da.Tracking = False
+    'da.Background = color.Black
+    'da.SetFocus()
+
+Catch ' errors
+    Message.Error(Error.Text)
+
+End
+
+Public Sub Form_Resize()
+
+    'da.W=ME.ClientW-da.Left - 20
+    'daXaxis.W=da.W + 10
+
+End
+
+Public Sub btnEsc_Click()
+
+    ' the form is no longer visible
+    ModuleMain.FChart = False
+
+    Me.Close
+
+End
+
+Public Sub Form_Close()
+
+    ' clear up the arrays
+    v.Clear
+    d.Clear
+
+End
+
+Public Sub btnClear_Click()
+
+    ' clear up the arrays
+    v.Clear
+    d.Clear
+
+    'da.Clear
+    'da.Refresh
+
+Catch ' errors
+
+End
+
+Public Sub cboParameter_Change()
+
+    btnClear_Click()
+
+End
+
+Public Sub da_Draw()
+
+    Dim siHeight, siWidth As Short                                                  'For Height and Width of the Chart
+
+    siHeight = da.Height - 10                                             'Set the value to 10 less than the DrawingArea Height
+    siWidth = da.Width - 10                                               'Set the value to 10 less than the DrawingArea Width
+    If siHeight < 10 Then siHeight = 10                                             'Make sure the value is not too small
+    If siWidth < 10 Then siWidth = 10                                               'Make sure the value is not too small
+
+    Chart.Height = siHeight                                                         'Set the Chart Height
+    Chart.Width = siWidth                                                           'Set the Chart Width
+    Chart.Draw
+
+Catch ' errors
+
+End

@@ -1,0 +1,93 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,61,50)
+  Background = &HFFFFFF
+  Text = ("About Gambas") & "..."
+  Icon = Picture["pics/about.png"]
+  Resizable = False
+  { Label5 Label
+    MoveScaled(-1.5,0,54,17)
+    Background = &HFFAA00
+  }
+  { btnClose Button
+    MoveScaled(21,42,12,3)
+    Background = &HFFFFFF
+    Text = ("OK")
+    Default = True
+    Cancel = True
+  }
+  { svwAuthor ScrollView
+    MoveScaled(0.5,17.5,53.5,23)
+    Background = &HFFFFFF
+    Border = True
+    ScrollBar = Scroll.None
+    { Label4 Label
+      MoveScaled(0.5,18,51.5,14)
+      Font = Font["20,Bold"]
+      Background = &HFFFFFF
+      Alignment = Align.Center
+      Text = ("GbDas ! An application to collect data from Adam 4000 modules.")
+    }
+    { TextLabel1 TextLabel
+      MoveScaled(1,69,50,165)
+      Background = &HFFFFFF
+      Text = ("<p><font size=+1><b>Paolo Saudin</b></font></p>\n<blockquote>\nMain developer<br>\n<u>admin@dreamof.biz</u>\n</blockquote>\n\n<p><font size=+1><b>Benoit Minisini</b></font></p>\n<blockquote>\nGambas developer<br>\n</blockquote>\n\n<p><font size=+1><b>Fabien Bodard</b></font></p>\n<blockquote>\nDeveloper<br>\n</blockquote>\n\n<p><font size=+1><b>Daniel Campos</b></font></p>\n<blockquote>\nGambas socket developer<br>\n</blockquote>\n")
+    }
+    { Image1 PictureBox
+      MoveScaled(20,32,12,7)
+      Background = &HFFFFFF
+      Picture = Picture.Load("pics/gambas.png")
+      Alignment = Align.Center
+    }
+    { TextLabel2 TextLabel
+      MoveScaled(1,40,50,26)
+      Background = &HFFFFFF
+      Text = ("<h2 align=center>Licence</h1>\n\n<p align=center>This program is FREE SOFTWARE; you can redistribute it AND/OR modify it under the terms of the GNU General Public License as published by the Free Software Foundation ; either version 1, or (at your option) any later version.</p>\n\n<p align=center>This program is distributed in the hope that it will be useful but WITHOUT ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>\n")
+    }
+    { TextLabel3 TextLabel
+      MoveScaled(1,65,51,4)
+      Background = &HFFFFFF
+      Text = ("<h2 align=center>Authors</h2>\n")
+      Alignment = Align.Center
+    }
+  }
+  { lblVersion Label
+    MoveScaled(3,7,31,3)
+    Font = Font["16,Bold"]
+    Background = &HFFAA00
+    Foreground = &HFFFFFF
+    Text = ("Alpha version (X.XX)")
+  }
+  { Label2 Label
+    MoveScaled(2,0,28,7)
+    Font = Font["36,Bold"]
+    Background = &HFFAA00
+    Foreground = &H1C546C
+    Text = ("GbDas")
+  }
+  { Label1 Label
+    MoveScaled(3,13,36,3)
+    Font = Font["12,Underline"]
+    Background = &HFFAA00
+    Foreground = &HFFFFFF
+  }
+  { Label3 Label
+    MoveScaled(3,10,27,3)
+    Font = Font["12"]
+    Background = &HFFAA00
+    Foreground = &HFFFFFF
+    Text = ("(c) Paolo SAUDIN")
+  }
+  { timAuthor #Timer
+    #MoveScaled(22.5,11)
+    Enabled = True
+    Delay = 40
+  }
+  { imgGambas PictureBox
+    MoveScaled(40,2,12,12)
+    Background = &HFFAA00
+    Picture = Picture.Load("pics/gambas.png")
+    Alignment = Align.Right
+  }
+}

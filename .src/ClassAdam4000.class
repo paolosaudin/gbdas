@@ -1,0 +1,350 @@
+' Gambas class file
+
+' Gambas class file
+' $Author$
+' $Revision$
+' Purpose : manage an Adam 4000 module
+'
+' Module Command set at the class's bottom
+'
+Property SerialPort As String
+Property PortNo As Byte
+Property Speed As String
+
+Private sSerialPort As String
+Private iPortNo As Byte
+Private sSpeed As String
+
+' the serial port interface
+Private Sport As SerialPort
+
+' internal variables
+' module name
+Private sMODNAME As String
+' PLC's return char
+Private sDELIMITER As String
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor : create and set the serial port properties
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+
+    ' set the constants
+    sMODNAME = "4017"
+    sDELIMITER = Chr$(13)
+
+    ' create a new object
+    Sport = New SerialPort As "Sport"
+
+    ' default properties
+    Me.PortNo = "1"
+    Me.Speed = "9600"
+
+    ' default port settings
+    Sport.Parity = 0
+    Sport.DataBits = 8
+    Sport.StopBits = 1
+
+Catch ' some errors
+    LogError(Error.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' destructor : cleanup the object
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _free()
+
+    Sport = Null
+Catch ' some errors
+    LogError(Error.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' open the comunication port
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function OpenDevice() As Boolean
+
+    ' get the port name and speed
+    Sport.PortName = "/dev/ttyS" & Trim(CStr(Me.PortNo))
+    Sport.Speed = Me.Speed
+
+    ' open the port
+    Sport.Open
+
+    If Sport.Status = Net.Active Then
+        '# PRINT "Device opened !"
+        Return True
+    Else
+        Return False
+    End If
+
+Catch ' some errors
+    LogError(Error.Text)
+    Return False
+
+End Function
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' close the comunication port
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub CloseDevice()
+    ' clear the buffer
+
+    ClearBuffer()
+    ' close the device
+    If Sport.Status = Net.Active Then Close Sport
+    Sport = Null
+
+Catch ' some errors
+    LogError(Error.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get all the values from the Adam 4017 module
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' sAddress = Adam module address
+'Command : '#aa(cr)'
+'Response: '>DataDataDataDataDataDataDataData(cr)'=ok: '?aa(cr)'=Not Ok
+Public Function Adam_4017Input(sAddress As Byte) As Float[]
+
+    Dim sBuffer As String
+    Dim i As Byte
+    Dim fValues As New Float[]
+
+    ' ##################### T E S T   O N L Y #################
+    For i = 0 To 7
+        ' get random values
+        fValues.Add(CFloat(Rnd(0, 1)))
+    Next
+    ' return the array
+    Return fValues
+    ' ######################################################
+
+    ' clear the buffer
+    ClearBuffer()
+
+    ' send the command to the PLC
+    sBuffer = "#" & Format(sAddress, "0#")
+    Write #Sport, sBuffer & Chr(13), Len(sBuffer) + 1
+
+    ' get the data from the PLC
+    sBuffer = GetBuffer(160) ' milliseconds
+
+    ' clear the buffer
+    ClearBuffer()
+
+    ' analyse the reponse
+    If Len(sBuffer) Then
+        ' check the return string
+        If Left$(sBuffer, 1) = ">" And Right$(sBuffer, 1) = sDELIMITER Then
+            ' get the string that contains all the values
+            sBuffer = Mid$(sBuffer, 2, Len(sBuffer) - 2)
+            ' we should have got 8 values
+            For i = 0 To 7
+                ' get each value
+                fValues.Add(CFloat(Mid$(sBuffer, (i * 7) + 1, 7)))
+            Next
+            ' all ok !
+            Return fValues
+        End If
+    End If
+
+    ' nothing
+    Return Null
+
+Catch ' some errors
+    LogError(Error.Text)
+    Return Null
+
+End Function
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get all the values from the Adam 4017 module
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' sAddress = Adam module address
+'Command : '$aaM(cr)'
+'Response: '!aaModuleName(cr)'=ok: '?aa(cr)'=Not Ok
+Public Function Adam_Check(sAddress As Byte) As Boolean
+
+    Dim sBuffer As String
+
+    ' ##################### T E S T   O N L Y #################
+    Return True
+    ' ######################################################
+
+    ' clear the buffer
+    ClearBuffer()
+
+    ' send the command to the PLC
+    sBuffer = "$" & Format(sAddress, "0#") & "M"
+    Write #Sport, sBuffer & Chr(13), Len(sBuffer) + 1
+
+    ' get the data from the PLC
+    sBuffer = GetBuffer(100) ' milliseconds
+
+    ' clear the buffer
+    ClearBuffer()
+
+    ' analyse the reponse
+    If Len(sBuffer) Then
+        ' check the return string
+        If Left$(sBuffer, 1) = "!" And Right$(sBuffer, 1) = sDELIMITER Then
+            ' get the string that contains all the values
+            If InStr(sBuffer, sMODNAME) Then Return True  ' all ok !
+        End If
+    End If
+
+    ' nothing
+    Return False
+
+Catch ' some errors
+    LogError(Error.Text)
+    Return False
+
+End Function
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get the data from the serial port
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function GetBuffer(fT As Float) As String
+
+    Dim tTimeout As Float
+    Dim sBuffer As String
+    Dim sString As String
+
+    ' set the timeout
+    tTimeout = Timer + (fT / 1000) ' milliseconds -> seconds
+
+    ' wait for the data to come
+    Do
+        If Not Eof(Sport) Then
+            ' we get some data !!
+            Read #Sport, sString, Lof(Sport)
+            sBuffer = sBuffer & sString
+        End If
+        Wait
+    Loop Until (Timer >= tTimeout) Or InStr(sBuffer, sDELIMITER) > 0
+
+    If Timer >= tTimeout Then Return "" ' timeout
+    Return sBuffer ' all ok
+
+Catch ' some errors
+    Return ""
+
+End
+
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' clear the serial port buffer
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sub ClearBuffer()
+
+    Dim sString As String
+    ' clear
+    If Not Eof(Sport) Then Read #Sport, sString, Lof(Sport)
+Catch ' some errors
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' log any error into a flat file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Private Sub LogError(msg As String)
+
+    Dim LogFile As String
+    Dim hFile As File
+
+    ' get the mysql log file name
+    LogFile = Application.Path &/ "logs/adam4000-" & Format(Now, "yyyy-mm") & ".log"
+
+    ' open the file
+    hFile = Open LogFile For Append
+
+    ' add the date and time
+    msg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & msg
+
+    ' write down to the file
+    Print #hFile, msg
+
+Finally ' Always executed, even if an error raised
+
+    Close #hFile
+
+Catch ' Executed only if there is an error
+    ' do nothing
+
+End
+
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' functions
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' Implements the SerialPort property
+Function SerialPort_Read() As String
+
+    Return sSerialPort
+
+End
+
+Sub SerialPort_Write(sValue As String)
+
+    sSerialPort = sValue
+
+End
+
+' Implements the PortNo property
+Function PortNo_Read() As Byte
+
+    Return iPortNo
+
+End
+
+Sub PortNo_Write(sValue As Byte)
+
+    iPortNo = sValue
+
+End
+
+' Implements the Speed property
+Function Speed_Read() As String
+
+    Return sSpeed
+
+End
+
+Sub Speed_Write(sValue As String)
+
+    sSpeed = sValue
+
+End
+
+' ' ADAM-4017 Command Table
+' ' Command Syntax Command Name Command Description Page No.
+' '
+' ' %AANNTTCCFF
+' '    Configuration Set the address, INPUT range, baud rate, data Format,
+' '    checksum status AND/OR integration Time FOR the specified analog INPUT module
+' ' #AAN
+' '    READ Analog INPUT from Channel N RETURN the INPUT value from channels
+' '    number N of the specified analog INPUT module
+' ' #AA
+' '    READ Analog INPUT from all Channels RETURN the INPUT values from all channels
+' '    of the specified analog INPUT module
+' ' $AA0
+' '    Span Calibration Calibrate the analog INPUT module TO correct FOR gain errors
+' ' $AA1
+' '    Offset Calibration Calibrate the analog INPUT module TO correct FOR offset errors
+' ' $AA2
+' '    Configuration Status RETURN the configuration parameters FOR the specified analog INPUT module
+' ' $AA5VV
+' '    Enable/disable Channels FOR Multiplexing Enables/disables multiplexing simultaneously
+' '    FOR seperate channels of the specified INPUT module
+' ' $AA6
+' '    READ Channel Status Ask the specified INPUT module TO RETURN the status of all eight channels
+' ' $AAF
+' '    READ Version RETURN the firmware version code from the specified analog INPUT module
+' ' $AAM
+' '   READ Module Name RETURN the module name from the specified analog INPUT module

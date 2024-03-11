@@ -1,0 +1,33 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : public variables and objects
+' This code is from Fabien Bodard
+
+' show the version
+Public Sub Form_Open()
+
+    lblVersion.Text = "version " & Application.Version
+
+End
+
+' scroll the child labels
+Public Sub timAuthor_Timer()
+
+    Dim Y As Integer
+
+    Y = svwAuthor.ScrollY
+    Inc svwAuthor.ScrollY
+    If Y = svwAuthor.ScrollY Then
+        svwAuthor.ScrollY = 0
+    Endif
+
+End
+
+' close this window
+Public Sub btnClose_Click()
+
+    Me.Close
+
+End

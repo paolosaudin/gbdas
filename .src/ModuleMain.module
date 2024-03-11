@@ -1,0 +1,428 @@
+' Gambas module file
+
+' $Author$
+' $Revision$
+' Purpose : public functions and startup routines
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' the database handler, station and Adam objects
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public dbh As ClassSqlite
+Public ost As ClassStation
+Public adm As ClassAdam4000
+' flag to start polling timer
+Public bAutoStart As Boolean
+' hold true when we've done a first polling (used in calculations)
+Private bFirstPolling As Boolean
+' hold true when the program is getting a new polling
+Private bBusy As Boolean
+' data and chart form status
+Public FGrid As Boolean
+Public FChart As Boolean
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' the startup routine
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub Main()
+
+    Dim bErr As Boolean
+
+    ' Application.Path -> /home/paolo/projects/gbdas
+    Print "Application.Path: " & Application.Path
+    Print "User.Home: " & User.Home
+
+    ' use this to create the file ini if missed
+    '? Config_CreateFile()
+
+    '#1 connect to the database
+    If Not Initialize_Database() Then
+        message.Error("Impossible to connet to the database !")
+        Quit
+    End If
+
+    '#2 load the station configuration
+    If Not Initialize_Station() Then
+        message.Error("Impossible to load the configuration !")
+        bErr = True
+    End If
+
+    '#3 create a new Adam istance
+    If Not Initialize_Adam() Then
+        message.Error("Impossible to use adam module !")
+        bErr = True
+    End If
+
+    '#4 check Adam comunications
+    If Not adm.Adam_Check(ost.AdamId) Then
+        message("Impossible to connect to the Adam module !")
+        bErr = True
+    End If
+
+    '#5  load the main form
+    If Not bErr Then
+        bAutoStart = Config_GetValue("App/autostart")
+    Else
+        ' no way to comunicate with either db or module
+        bAutoStart = False
+    End If
+
+    '#6  load the main form
+    FormMain.Load
+    FormMain.Show
+
+    Me.LogEvent("Sarted up !")
+
+Catch ' error trap
+    Me.LogEvent(ERROR.Text)
+    message.Error(ERROR.Text)
+    Quit
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' function to connect to the MySql database
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Initialize_Database() As Boolean
+
+    ' create a new MySql class instance
+    dbh = New ClassSqlite
+
+    ' set the properties
+    dbh.Host = Application.Path &/ Config_GetValue("Sqlite/host")
+    dbh.Db = Config_GetValue("Sqlite/dbname")
+
+    ' connect to the database
+    If dbh.ServerConnect() Then
+        Return True
+    Else
+        Return False
+    End If
+
+Catch ' error trap
+    Me.LogEvent(DConv(ERROR.Text))
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' function to load the main station object
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Initialize_Station() As Boolean
+
+    Dim p As ClassParameter
+
+    ' get the station object
+    ost = dbh.LoadStation()
+
+    ' if null some errors
+    If Not IsNull(ost) Then
+        ' reset all the values
+        For Each p In ost.Parameters
+            With p.Data
+                .RawValue = 0
+                .LastValue = 0
+                .PreviousValue = 0
+                .TotalValue = 0
+                .Mean = 0
+                .ValCode = 0
+                .Minimun = 99999
+                .Maximum = -99999
+                .MinimumTime = "00:00:00"
+                .MaximumTime = "00:00:00"
+                .Readings = 0
+                .StdDev = 0
+            End With
+        Next
+        ' all ok
+        Return True
+    Else
+        Me.LogEvent("Impossible to load the station configuration !")
+        Return False
+    End If
+
+Catch ' error trap
+    Me.LogEvent(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' function to connect to an Adam 4000 module
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function Initialize_Adam() As Boolean
+
+    ' create a new object
+    adm = New ClassAdam4000
+
+    ' set its properties
+    adm.Speed = Config_GetValue("Adam4000/baudrate")
+    adm.PortNo = ost.ComPort - Config_GetValue("Adam4000/comport") '/dev/ttyS0 = COM1
+
+    '' fake suff
+    Return True
+
+    ' open the comunication port
+    If adm.OpenDevice() Then
+        ' all ok
+        Return True
+    Else
+        Me.LogEvent("Impossible to open the serial comm device !")
+        Return False
+    End If
+
+Catch ' error trap
+    Me.LogEvent(ERROR.Text)
+    Return False
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' polling core procedure
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function Polling() As Boolean
+
+    Dim fArr As Variant
+    'Dim f As Float
+    Dim p As ClassParameter
+    Dim fP1 As Float
+    Dim fP2 As Float
+    Dim fRange As Float
+    Dim fRangeModule As Float
+    Dim fUnit As Float
+    Dim fDev1 As Float
+    Dim fDev2 As Float
+    Dim iCod As Byte
+
+    ' check we are already in the routine (too fast polling)
+    If bBusy Then Return
+
+    ' program busy
+    bBusy = True
+
+    ' get all the values from the analog card
+    fArr = Me.GetValues()
+
+    ' if the array contains data
+    If Not IsNull(fArr) Then
+
+        ' analize any parameter
+        For Each p In ost.Parameters
+
+            ' check if the parameter is active
+            If p.Active Then
+
+                ' increment the readings +++
+                Inc p.Data.Readings
+
+                ' set the raw data
+                p.Data.RawValue = fArr[p.Channel]
+
+                Select Case p.Algorithm
+                    Case "Mean"
+                        Select Case p.InputRange
+                            Case "0-10", "10-10"
+                                fP1 = 0
+                                fP2 = 10
+                            Case "0-5", "5-5"
+                                fP1 = 0
+                                fP2 = 5
+                            Case "0-1", "1-1"
+                                fP1 = 0
+                                fP2 = 1
+                        End Select
+                        fRangeModule = fP2 - fP1
+                        fRange = p.HigherPointValue - p.LowerPointValue
+                        fUnit = fRange / fRangeModule
+
+                        ' get the last value
+                        p.Data.LastValue = p.Span * fUnit * (p.Data.RawValue - fP1) + p.LowerPointValue + p.Offset
+                        p.Data.TotalValue = p.Data.TotalValue + p.Data.LastValue
+
+                    Case "Free" ' could be a counter or vector calculation
+                        Select Case p.InputRange
+                            Default
+                        End Select
+
+                End Select
+
+                ' validity code
+                iCod = 0
+
+                ' prealarm and alarm
+                If p.Data.LastValue > p.PreAlarm Then iCod = iCod Or 1 ' pre alarm threshold
+                If p.Data.LastValue > p.Alarm Then iCod = iCod Or 2      ' alarm threshold
+
+                ' minimun and maximum variation
+                If bFirstPolling Then ' makes no sense without a previous value
+                    If Abs(p.Data.LastValue - p.Data.PreviousValue) > p.MaxVariation Then iCod = iCod Or 4
+                    If Abs(p.Data.LastValue - p.Data.PreviousValue) < p.MinVariation Then iCod = iCod Or 4
+                End If
+
+                ' minimum and maximum checks
+                If p.Data.LastValue < p.MinValue Then iCod = iCod Or 8 ' the parameter exeeded the maximum value
+                If p.Data.LastValue > p.MaxValue Then iCod = iCod Or 8 ' the parameter exeeded the minimum value
+
+                ' minimum readings check (calculated at mean time)
+                ' iCod = iCod OR 16
+
+                ' get the new validity code
+                p.Data.ValCode = p.Data.ValCode Or iCod
+
+                ' check for minimum and maximun value - time
+                If p.Data.LastValue < p.Data.Minimun Then ' a new maximum value
+                    p.Data.Minimun = p.Data.LastValue
+                    p.Data.MinimumTime = Format(Now, "hh:nn:ss")
+                End If
+                If p.Data.LastValue > p.Data.Maximum Then ' a new minimum value
+                    p.Data.Maximum = p.Data.LastValue
+                    p.Data.MaximumTime = Format(Now, "hh:nn:ss")
+                End If
+
+                ' calculate the deviation
+                fDev1 = p.Data.StdDev ^ 2 * (p.Data.Readings - 1)
+                fDev2 = fDev1 + (p.Data.LastValue - p.Data.Mean) ^ 2
+                p.Data.StdDev = Round(Sqr(fDev2 / p.Data.Readings), -2)
+
+                ' save the lastvalue -> proviousvalue
+                p.Data.PreviousValue = p.Data.LastValue
+
+                ' calculate the mean value and round them up
+                p.Data.Mean = Round(p.Data.TotalValue / p.Data.Readings, -1 * p.Decimals)
+                p.Data.LastValue = Round(p.Data.LastValue, -1 * p.Decimals)
+                p.Data.Minimun = Round(p.Data.Minimun, -1 * p.Decimals)
+                p.Data.Maximum = Round(p.Data.Maximum, -1 * p.Decimals)
+
+            End If ' parameter is active
+
+        Next ' through all the parameters
+
+        ' we set the first polling flag (to calculate min-max variation)
+        bFirstPolling = True
+
+    Else ' no data !!
+
+        Me.LogEvent("Impossible to get data !")
+
+    End If
+
+Finally' Always executed, even if an error raised
+    ' program not busy any more
+    bBusy = False
+
+Catch ' error trap
+    Me.LogEvent(ERROR.Text)
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get an array holding the plc' values
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function GetValues() As Variant
+
+    Dim fArr As Float[]
+
+    ' draw the serial port led
+    FormMain.DrawEvent("com", "on")
+
+    ' get the array holding the values
+    fArr = ModuleMain.adm.Adam_4017Input(ost.AdamId)
+
+    ' draw the serial port led
+    FormMain.DrawEvent("com", "off")
+
+    If fArr.Count > 0 Then
+        Return fArr
+    Else
+        Return Null
+    End If
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' log any error into a flat file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub LogEvent(msg As String)
+
+    Dim LogFile As String
+    Dim hFile As File
+
+    ' get the general log file name
+    LogFile = Application.Path &/ "logs/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
+
+    ' add the date and time
+    msg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & msg
+
+    ' open the file
+    hFile = Open LogFile For Append
+
+    ' write down to the file
+    Print #hFile, msg
+
+Finally ' Always executed, even if an error raised
+
+    Close #hFile
+
+Catch ' Executed only if there is an error
+    ' do nothing
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' create a new config file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub Config_CreateFile()
+
+    Dim sConfigFile As String
+    Dim hSettings As Settings
+
+    sConfigFile = Application.Path &/ Application.Name & ".conf"
+    hSettings = New Settings(sConfigFile)
+
+    hSettings["App/autostart"] = 0
+
+    hSettings["Sqlite/host"] = "db"
+    hSettings["Sqlite/dbname"] = "gbdas.sqlite"
+
+    hSettings["Adam4000/comport"] = 1
+    hSettings["Adam4000/baudrate"] = 9600
+
+    hSettings.Save
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' set a value in the config file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub Config_SetValue(sKey As String, vValue As Variant)
+
+    Dim sConfigFile As String
+    Dim hSettings As Settings
+
+    sConfigFile = Application.Path &/ Application.Name & ".conf"
+    hSettings = New Settings(sConfigFile)
+
+    hSettings[sKey] = vValue
+
+    hSettings.Save
+
+End
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' get a value from the config file
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Function Config_GetValue(sKey As String, Optional vValue As Variant) As Variant
+
+    Dim sConfigFile As String
+    Dim hSettings As Settings
+
+    sConfigFile = Application.Path &/ Application.Name & ".conf"
+    hSettings = New Settings(sConfigFile)
+    'hSettings = New Settings("/home/paolo/projects/gbdas/.src/gbdas.conf")
+
+    If Not IsNull(vValue) Then
+        Return hSettings[sKey, vValue]
+    Else
+        Return hSettings[sKey, Null]
+    Endif
+
+End

@@ -1,0 +1,207 @@
+' Gambas class file
+
+' $Author$
+' $Revision$
+' Purpose : public variables and objects
+'
+' Alarms 3 bytes (all ON) 127
+' OR  0      =  Valid
+' OR  1      =  pre alarm threshold
+' OR  2      =  alarm threshold
+' OR  4      =  measure outside min or max admetted variation
+' OR  8      =  measure outside min or max
+' OR  16    =  minimum readings threshold
+' OR  32    =  free
+' OR  64    =  free
+'
+Property LastValue As Float
+Property TotalValue As Float
+Property RawValue As Float
+Property Mean As Float
+Property ValCode As Byte
+Property Readings As Short
+Property Minimun As Float
+Property MinimumTime As Date
+Property Maximum As Float
+Property MaximumTime As Date
+Property StdDev As Float
+Property PreviousValue As Float
+
+Private fLastValue As Float
+Private fTotalValue As Float
+Private fRawValue As Float
+Private fMean As Float
+Private iValCode As Byte
+Private iReadings As Short
+Private fMinimun As Float
+Private dMinimumTime As Date
+Private fMaximum As Float
+Private dMaximumTime As Date
+Private fStdDev As Float
+Private fPreviousValue As Float
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' constructor
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Public Sub _new()
+
+    dMinimumTime = Date
+    dMaximumTime = Date
+
+End
+
+' Implements the LastValue property
+Function LastValue_Read() As Float
+
+    Return fLastValue
+
+End
+
+Sub LastValue_Write(Value As Float)
+
+    fLastValue = Value
+
+End
+
+' Implements the TotalValue property
+Function TotalValue_Read() As Float
+
+    Return fTotalValue
+
+End
+
+Sub TotalValue_Write(Value As Float)
+
+    fTotalValue = Value
+
+End
+
+' Implements the RawValue property
+Function RawValue_Read() As Float
+
+    Return fRawValue
+
+End
+
+Sub RawValue_Write(Value As Float)
+
+    fRawValue = Value
+
+End
+
+' Implements the Mean property
+Function Mean_Read() As Float
+
+    Return fMean
+
+End
+
+Sub Mean_Write(Value As Float)
+
+    fMean = Value
+
+End
+
+' Implements the ValCode property
+Function ValCode_Read() As Byte
+
+    Return iValCode
+
+End
+
+Sub ValCode_Write(Value As Byte)
+
+    iValCode = Value
+
+End
+
+' Implements the Readings property
+Function Readings_Read() As Short
+
+    Return iReadings
+
+End
+
+Sub Readings_Write(Value As Short)
+
+    iReadings = Value
+
+End
+
+' Implements the Minimun property
+Function Minimun_Read() As Float
+
+    Return fMinimun
+
+End
+
+Sub Minimun_Write(Value As Float)
+
+    fMinimun = Value
+
+End
+
+' Implements the MinimumTime property
+Function MinimumTime_Read() As Date
+
+    Return dMinimumTime
+
+End
+
+Sub MinimumTime_Write(Value As Date)
+
+    dMinimumTime = Value
+
+End
+
+' Implements the Readings property
+Function Maximum_Read() As Float
+
+    Return fMaximum
+
+End
+
+Sub Maximum_Write(Value As Float)
+
+    fMaximum = Value
+
+End
+
+' Implements the MaximumTime property
+Function MaximumTime_Read() As Date
+
+    Return dMaximumTime
+
+End
+
+Sub MaximumTime_Write(Value As Date)
+
+    dMaximumTime = Value
+
+End
+
+' Implements the StdDev property
+Function StdDev_Read() As Float
+
+    Return fStdDev
+
+End
+
+Sub StdDev_Write(Value As Float)
+
+    fStdDev = Value
+
+End
+
+' Implements the PreviousValue property
+Function PreviousValue_Read() As Float
+
+    Return fPreviousValue
+
+End
+
+Sub PreviousValue_Write(Value As Float)
+
+    fPreviousValue = Value
+
+End

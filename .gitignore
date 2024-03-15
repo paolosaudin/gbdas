@@ -18,5 +18,7 @@ vgcore.*
 .profile/*
 #----
 
+ftp
+logs
 pics
 *.txt

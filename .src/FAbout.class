@@ -1,9 +1,6 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : public variables and objects
-' This code is from Fabien Bodard
 
 ' show the version
 Public Sub Form_Open()

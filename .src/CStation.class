@@ -1,11 +1,9 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : public variables and objects
-'
+
 Public Parameters As Collection
-Public Parameter As ClassParameter
+Public Parameter As CParameter
 
 Property Name As String
 Property Code As String
@@ -33,18 +31,18 @@ Private bFtpRawData As Boolean
 ' not in the station table
 Private iAlarm As Byte
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' constructor
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _new()
 
     Parameters = New Collection
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' destructor
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _free()
 
     Parameters = Null
@@ -84,9 +82,9 @@ Function AcquisitionInterval_Read() As Byte
 
 End
 
-Sub AcquisitionInterval_Write(sValue As Byte)
+Sub AcquisitionInterval_Write(iValue As Byte)
 
-    iAcquisitionInterval = sValue
+    iAcquisitionInterval = iValue
 
 End
 
@@ -97,9 +95,9 @@ Function IntTime_Read() As Byte
 
 End
 
-Sub IntTime_Write(sValue As Byte)
+Sub IntTime_Write(iValue As Byte)
 
-    iIntTime = sValue
+    iIntTime = iValue
 
 End
 
@@ -110,9 +108,9 @@ Function ComPort_Read() As Byte
 
 End
 
-Sub ComPort_Write(sValue As Byte)
+Sub ComPort_Write(iValue As Byte)
 
-    iComPort = sValue
+    iComPort = iValue
 
 End
 
@@ -123,9 +121,9 @@ Function AdamId_Read() As Byte
 
 End
 
-Sub AdamId_Write(sValue As Byte)
+Sub AdamId_Write(iValue As Byte)
 
-    iAdamId = sValue
+    iAdamId = iValue
 
 End
 
@@ -136,9 +134,9 @@ Function FtpExport_Read() As Boolean
 
 End
 
-Sub FtpExport_Write(sValue As Boolean)
+Sub FtpExport_Write(bValue As Boolean)
 
-    bFtpExport = sValue
+    bFtpExport = bValue
 
 End
 
@@ -149,9 +147,9 @@ Function FtpExportBzip_Read() As Boolean
 
 End
 
-Sub FtpExportBzip_Write(sValue As Boolean)
+Sub FtpExportBzip_Write(bValue As Boolean)
 
-    bFtpExportBzip = sValue
+    bFtpExportBzip = bValue
 
 End
 
@@ -162,9 +160,9 @@ Function SaveRawData_Read() As Boolean
 
 End
 
-Sub SaveRawData_Write(sValue As Boolean)
+Sub SaveRawData_Write(bValue As Boolean)
 
-    bSaveRawData = sValue
+    bSaveRawData = bValue
 
 End
 
@@ -175,9 +173,9 @@ Function FtpRawData_Read() As Boolean
 
 End
 
-Sub FtpRawData_Write(sValue As Boolean)
+Sub FtpRawData_Write(bValue As Boolean)
 
-    bFtpRawData = sValue
+    bFtpRawData = bValue
 
 End
 
@@ -188,8 +186,8 @@ Function Alarm_Read() As Byte
 
 End
 
-Sub Alarm_Write(sValue As Byte)
+Sub Alarm_Write(iValue As Byte)
 
-    iAlarm = sValue
+    iAlarm = iValue
 
 End

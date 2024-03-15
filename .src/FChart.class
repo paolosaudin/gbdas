@@ -1,7 +1,5 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : draw a plot-like real-time chart
 
 ' data array
@@ -12,25 +10,25 @@ Private n As Integer
 Private fDivX As Float
 Private fDivY As Float
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' draw the chart made up of v array of data (y is the array holding the latest values)
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub DrawChart(y As Variant[])
 
     Dim i As Integer
-    Dim preX As Integer
-    Dim preY As Integer
-    Dim newX As Integer
-    Dim newY As Integer
-    Dim yOffset As Integer
+    'Dim preX As Integer
+    'Dim preY As Integer
+    'Dim newX As Integer
+    'Dim newY As Integer
+    Dim iYOffset As Integer
     Dim c As Integer
-    Dim vMin As Float
-    Dim vMax As Float
+    Dim fMin As Float
+    Dim fMax As Float
     Dim r As Integer
 
     ' get the max and minimum X axis values
-    vMin = Val(cboScaleMin.Text)
-    vMax = Val(cboScaleMax.Text)
+    fMin = Val(cboScaleMin.Text)
+    fMax = Val(cboScaleMax.Text)
 
     ' add the incoming value to the array
     v.add(y[cboParameter.Index + 1])
@@ -53,8 +51,8 @@ Public Sub DrawChart(y As Variant[])
 
     ' calculate some variables
     fDivX = CFloat(da.W) / (v.Count - 1)
-    fDivY = CFloat(da.H) / CFloat(vMax - vMin)
-    yOffset = vMin * fDivY
+    fDivY = CFloat(da.H) / CFloat(fMax - fMin)
+    iYOffset = fMin * fDivY
     'PRINT fDivX, fDivY, yOffset
 
     ' clear up the drawing areas
@@ -135,7 +133,7 @@ Public Sub DrawChart(y As Variant[])
 
     Dim tValues As New Variant[]
     Dim fValues1 As New Float[]
-    Dim fValues2 As New Float[]
+    'Dim fValues2 As New Float[]
 
     For i = 0 To v.Count - 1
         'newX = CInt((i) * fDivX)
@@ -177,7 +175,7 @@ Public Sub Form_Open()
     Me.Center()
 
     ' the form is visible
-    ModuleMain.FChart = True
+    MMain.FChart = True
 
     cboScaleMin.Add("0")
     cboScaleMin.Add("-1")
@@ -207,7 +205,7 @@ Public Sub Form_Open()
     cboCount.Index = 1
 
     For i = 1 To 8
-        cboParameter.Add(ModuleMain.ost.Parameters[i].Name)
+        cboParameter.Add(MMain.ost.Parameters[i].Name)
     Next
     cboParameter.Index = 0
 
@@ -242,7 +240,7 @@ End
 Public Sub btnEsc_Click()
 
     ' the form is no longer visible
-    ModuleMain.FChart = False
+    MMain.FChart = False
 
     Me.Close
 
@@ -277,15 +275,15 @@ End
 
 Public Sub da_Draw()
 
-    Dim siHeight, siWidth As Short                                                  'For Height and Width of the Chart
+    Dim iHeight, iWidth As Short                                                  'For Height and Width of the Chart
 
-    siHeight = da.Height - 10                                             'Set the value to 10 less than the DrawingArea Height
-    siWidth = da.Width - 10                                               'Set the value to 10 less than the DrawingArea Width
-    If siHeight < 10 Then siHeight = 10                                             'Make sure the value is not too small
-    If siWidth < 10 Then siWidth = 10                                               'Make sure the value is not too small
+    iHeight = da.Height - 10                                             'Set the value to 10 less than the DrawingArea Height
+    iWidth = da.Width - 10                                               'Set the value to 10 less than the DrawingArea Width
+    If iHeight < 10 Then iHeight = 10                                             'Make sure the value is not too small
+    If iWidth < 10 Then iWidth = 10                                               'Make sure the value is not too small
 
-    Chart.Height = siHeight                                                         'Set the Chart Height
-    Chart.Width = siWidth                                                           'Set the Chart Width
+    Chart.Height = iHeight                                                         'Set the Chart Height
+    Chart.Width = iWidth                                                           'Set the Chart Width
     Chart.Draw
 
 Catch ' errors

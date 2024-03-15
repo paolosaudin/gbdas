@@ -1,20 +1,18 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : modify settings
 
 ' local object reference
-Private ost As ClassStation
+Private ost As CStation
 ' the parameter being edited/viewed
 Private iPrId As Byte
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' main routine : fill the controls and shows up the form in a modal way
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Public Sub ShowForm(o As ClassStation)
+'
+Public Sub ShowForm(o As CStation)
 
-    'Dim p As ClassParameter
+    'Dim p As CParameter
 
     ' get a local reference for the use througout the form
     ost = o
@@ -76,9 +74,9 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' just some stuff
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Form_Open()
 
     Me.Caption = "Editing station"
@@ -89,9 +87,9 @@ Public Sub Form_Open()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' save the station changes back into the database & exit
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub btnSave_Click()
 
     ost.Name = Trim(txtName.Text)
@@ -132,14 +130,14 @@ Public Sub btnSave_Click()
     ' the main ost object is updated as it is a reference
 
     ' save back to the database
-    If ModuleMain.dbh.SaveStation(ost) Then
+    If MMain.dbh.SaveStation(ost) Then
         message.Info("Configuration saved !")
     Else
         message.Error("Error saving configuration!")
     End If
 
     ' set the flag
-    FormMain.SetupChanged = True
+    FMain.SetupChanged = True
 
     ' exit
     Me.Close
@@ -149,18 +147,17 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' exit this window form after changes check
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub btnEsc_Click()
-
-    Dim ret As Variant
 
     ' if the user has made some changes it warn him
     If btnSave.Enabled Then
-        ret = message.Question("Configuration has chaned. Do you want to save it?", "Yes", "No")
-        ' save back ?
-        If ret = 1 Then btnSave_Click()
+        ' ask for saving
+        If Message.Question("Configuration has chaned. Do you want to save it?", "Yes", "No") Then 
+            btnSave_Click()
+        End If
     End If
 
     ' close the form
@@ -168,9 +165,9 @@ Public Sub btnEsc_Click()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' fill the controls with default values
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Sub RefreshControls()
 
     Dim i As Byte
@@ -220,12 +217,12 @@ Catch ' errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' shows up the selected parameter properties
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub lstPars_Click()
 
-    Dim p As ClassParameter
+    Dim p As CParameter
 
     ' flag to indicate that the user has changed the parameter name
     ' and we'll have to update the parameter list
@@ -292,9 +289,9 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' abandon the changes made to the current parameter - simply reload it
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub btnPrCancel_Click()
     ' reload the current parameter
 
@@ -305,12 +302,12 @@ Public Sub btnPrCancel_Click()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' save the changes made to the current parameter
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub btnPrSave_Click()
 
-    Dim p As ClassParameter
+    Dim p As CParameter
 
     ' get the proper parameter
     p = ost.Parameters[CStr(iPrId)]
@@ -372,12 +369,12 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' load the available parameters in the list
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub RefreshParametersList()
 
-    Dim p As ClassParameter
+    Dim p As CParameter
     Dim i As Byte
 
     i = 1
@@ -391,9 +388,9 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' routines to manage the user changes
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub stChangeEvent_Click()
     ' enable the save button
 
@@ -424,9 +421,9 @@ Public Sub prChangeEvent_Change()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' use the tag property to reload the parameter list name after saving
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub txtPrName_Change()
 
     btnPrCancel.Enabled = True

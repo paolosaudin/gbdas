@@ -1,9 +1,7 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : public variables and objects
-'
+
 Property Id As Byte ' parameter's unique ID
 Property Active As Boolean
 Property Name As String
@@ -25,7 +23,7 @@ Property MaxVariation As Float
 Property MinValue As Float
 Property MaxValue As Float
 ' carry the data
-Property Data As ClassParameterData
+Property Data As CParameterData
 
 Private iId As Byte
 Private bActive As Boolean
@@ -48,11 +46,11 @@ Private fMaxVariation As Float
 Private fMinValue As Float
 Private fMaxValue As Float
 ' carry the data
-Private oData As ClassParameterData
+Private oData As CParameterData
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' constructor
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _new()
 
     iId = 0
@@ -77,7 +75,7 @@ Public Sub _new()
     fMaxValue = -99999
 
     ' data properties
-    oData = New ClassParameterData
+    oData = New CParameterData
     With oData
         .RawValue = 0
         .LastValue = 0
@@ -95,9 +93,9 @@ Public Sub _new()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' destructor
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _free()
 
     oData = Null
@@ -352,13 +350,13 @@ Sub MaxValue_Write(Value As Float)
 End
 
 ' Implements the Data property
-Function Data_Read() As ClassParameterData
+Function Data_Read() As CParameterData
 
     Return oData
 
 End
 
-Sub Data_Write(Value As ClassParameterData)
+Sub Data_Write(Value As CParameterData)
 
     oData = Value
 

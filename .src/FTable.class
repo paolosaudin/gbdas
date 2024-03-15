@@ -1,7 +1,5 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : show a table filled with acquired data
 
 Public Sub Form_Open()
@@ -10,13 +8,13 @@ Public Sub Form_Open()
     Me.Center()
 
     ' the form is visible
-    ModuleMain.FGrid = True
+    MMain.FGrid = True
 
 End
 
 Public Sub _New()
 
-    Dim p As ClassParameter
+    Dim p As CParameter
     Dim c As Integer
 
     With grdData
@@ -27,7 +25,7 @@ Public Sub _New()
     grdData[0, 0].text = "Date"
 
     c = 1
-    For Each p In ModuleMain.ost.Parameters
+    For Each p In MMain.ost.Parameters
         grdData[0, c].text = p.Name
         Inc c
     Next
@@ -36,9 +34,9 @@ Catch ' errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' fill a grid with incoming data v[]
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub ShowData(v As Variant[])
 
     Dim i As Integer
@@ -62,7 +60,7 @@ End
 Public Sub btnEsc_Click()
 
     ' the form is no longer visible
-    ModuleMain.FGrid = False
+    MMain.FGrid = False
 
     Me.Close
 

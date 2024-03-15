@@ -1,15 +1,13 @@
 ' Gambas module file
 
-' $Author$
-' $Revision$
 ' Purpose : public functions and startup routines
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' the database handler, station and Adam objects
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Public dbh As ClassSqlite
-Public ost As ClassStation
-Public adm As ClassAdam4000
+'
+Public dbh As CSqlite
+Public ost As CStation
+Public adm As CAdam4000
 ' flag to start polling timer
 Public bAutoStart As Boolean
 ' hold true when we've done a first polling (used in calculations)
@@ -20,9 +18,9 @@ Private bBusy As Boolean
 Public FGrid As Boolean
 Public FChart As Boolean
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' the startup routine
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Main()
 
     Dim bErr As Boolean
@@ -31,8 +29,8 @@ Public Sub Main()
     Print "Application.Path: " & Application.Path
     Print "User.Home: " & User.Home
 
-    ' use this to create the file ini if missed
-    '? Config_CreateFile()
+    '#0 crate standard ini file if missed
+    Config_CreateFile()
 
     '#1 connect to the database
     If Not Initialize_Database() Then
@@ -67,25 +65,26 @@ Public Sub Main()
     End If
 
     '#6  load the main form
-    FormMain.Load
-    FormMain.Show
+    FMain.Load
+    FMain.Show
 
     Me.LogEvent("Sarted up !")
 
 Catch ' error trap
+    
     Me.LogEvent(ERROR.Text)
     message.Error(ERROR.Text)
     Quit
-
+    
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' function to connect to the MySql database
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Function Initialize_Database() As Boolean
 
     ' create a new MySql class instance
-    dbh = New ClassSqlite
+    dbh = New CSqlite
 
     ' set the properties
     dbh.Host = Application.Path &/ Config_GetValue("Sqlite/host")
@@ -99,17 +98,16 @@ Function Initialize_Database() As Boolean
     End If
 
 Catch ' error trap
+    
     Me.LogEvent(DConv(ERROR.Text))
     Return False
-
+    
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' function to load the main station object
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Function Initialize_Station() As Boolean
-
-    Dim p As ClassParameter
 
     ' get the station object
     ost = dbh.LoadStation()
@@ -117,7 +115,7 @@ Function Initialize_Station() As Boolean
     ' if null some errors
     If Not IsNull(ost) Then
         ' reset all the values
-        For Each p In ost.Parameters
+        For Each p As CParameter In ost.Parameters
             With p.Data
                 .RawValue = 0
                 .LastValue = 0
@@ -141,18 +139,19 @@ Function Initialize_Station() As Boolean
     End If
 
 Catch ' error trap
+    
     Me.LogEvent(ERROR.Text)
     Return False
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' function to connect to an Adam 4000 module
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Function Initialize_Adam() As Boolean
 
     ' create a new object
-    adm = New ClassAdam4000
+    adm = New CAdam4000
 
     ' set its properties
     adm.Speed = Config_GetValue("Adam4000/baudrate")
@@ -171,19 +170,18 @@ Function Initialize_Adam() As Boolean
     End If
 
 Catch ' error trap
+    
     Me.LogEvent(ERROR.Text)
     Return False
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' polling core procedure
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Function Polling() As Boolean
 
-    Dim fArr As Variant
-    'Dim f As Float
-    Dim p As ClassParameter
+    Dim vArr As Variant
     Dim fP1 As Float
     Dim fP2 As Float
     Dim fRange As Float
@@ -200,13 +198,13 @@ Public Function Polling() As Boolean
     bBusy = True
 
     ' get all the values from the analog card
-    fArr = Me.GetValues()
+    vArr = Me.GetValues()
 
     ' if the array contains data
-    If Not IsNull(fArr) Then
+    If Not IsNull(vArr) Then
 
         ' analize any parameter
-        For Each p In ost.Parameters
+        For Each p As CParameter In ost.Parameters
 
             ' check if the parameter is active
             If p.Active Then
@@ -215,7 +213,7 @@ Public Function Polling() As Boolean
                 Inc p.Data.Readings
 
                 ' set the raw data
-                p.Data.RawValue = fArr[p.Channel]
+                p.Data.RawValue = vArr[p.Channel]
 
                 Select Case p.Algorithm
                     Case "Mean"
@@ -306,29 +304,31 @@ Public Function Polling() As Boolean
     End If
 
 Finally' Always executed, even if an error raised
+    
     ' program not busy any more
     bBusy = False
 
 Catch ' error trap
+    
     Me.LogEvent(ERROR.Text)
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get an array holding the plc' values
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Function GetValues() As Variant
 
     Dim fArr As Float[]
 
     ' draw the serial port led
-    FormMain.DrawEvent("com", "on")
+    FMain.DrawEvent("com", "on")
 
     ' get the array holding the values
-    fArr = ModuleMain.adm.Adam_4017Input(ost.AdamId)
+    fArr = MMain.adm.Adam_4017Input(ost.AdamId)
 
     ' draw the serial port led
-    FormMain.DrawEvent("com", "off")
+    FMain.DrawEvent("com", "off")
 
     If fArr.Count > 0 Then
         Return fArr
@@ -338,10 +338,10 @@ Public Function GetValues() As Variant
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' log any error into a flat file
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Public Sub LogEvent(msg As String)
+'
+Public Sub LogEvent(sMsg As String)
 
     Dim LogFile As String
     Dim hFile As File
@@ -350,13 +350,13 @@ Public Sub LogEvent(msg As String)
     LogFile = Application.Path &/ "logs/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
 
     ' add the date and time
-    msg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & msg
+    sMsg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & sMsg
 
     ' open the file
     hFile = Open LogFile For Append
 
     ' write down to the file
-    Print #hFile, msg
+    Print #hFile, sMsg
 
 Finally ' Always executed, even if an error raised
 
@@ -367,15 +367,22 @@ Catch ' Executed only if there is an error
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' create a new config file
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Config_CreateFile()
 
     Dim sConfigFile As String
     Dim hSettings As Settings
 
+    ' get file name
     sConfigFile = Application.Path &/ Application.Name & ".conf"
+    
+    ' check if exist
+    If Exist(sConfigFile) Then
+        Return 
+    Endif
+    
     hSettings = New Settings(sConfigFile)
 
     hSettings["App/autostart"] = 0
@@ -390,9 +397,9 @@ Public Sub Config_CreateFile()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' set a value in the config file
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Config_SetValue(sKey As String, vValue As Variant)
 
     Dim sConfigFile As String
@@ -407,9 +414,9 @@ Public Sub Config_SetValue(sKey As String, vValue As Variant)
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get a value from the config file
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Function Config_GetValue(sKey As String, Optional vValue As Variant) As Variant
 
     Dim sConfigFile As String

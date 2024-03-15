@@ -1,9 +1,7 @@
 ' Gambas class file
 
-' Gambas class file
-' $Author$
-' $Revision$
 ' Purpose : manage an Adam 4000 module
+
 '
 ' Module Command set at the class's bottom
 '
@@ -24,9 +22,9 @@ Private sMODNAME As String
 ' PLC's return char
 Private sDELIMITER As String
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' constructor : create and set the serial port properties
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _new()
 
     ' set the constants
@@ -50,9 +48,9 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' destructor : cleanup the object
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _free()
 
     Sport = Null
@@ -61,9 +59,9 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' open the comunication port
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Function OpenDevice() As Boolean
 
     ' get the port name and speed
@@ -86,9 +84,9 @@ Catch ' some errors
 
 End Function
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' close the comunication port
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub CloseDevice()
     ' clear the buffer
 
@@ -102,13 +100,13 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get all the values from the Adam 4017 module
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' sAddress = Adam module address
 'Command : '#aa(cr)'
 'Response: '>DataDataDataDataDataDataDataData(cr)'=ok: '?aa(cr)'=Not Ok
-Public Function Adam_4017Input(sAddress As Byte) As Float[]
+Public Function Adam_4017Input(iAddress As Byte) As Float[]
 
     Dim sBuffer As String
     Dim i As Byte
@@ -127,7 +125,7 @@ Public Function Adam_4017Input(sAddress As Byte) As Float[]
     ClearBuffer()
 
     ' send the command to the PLC
-    sBuffer = "#" & Format(sAddress, "0#")
+    sBuffer = "#" & Format(iAddress, "0#")
     Write #Sport, sBuffer & Chr(13), Len(sBuffer) + 1
 
     ' get the data from the PLC
@@ -161,13 +159,13 @@ Catch ' some errors
 
 End Function
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get all the values from the Adam 4017 module
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' sAddress = Adam module address
 'Command : '$aaM(cr)'
 'Response: '!aaModuleName(cr)'=ok: '?aa(cr)'=Not Ok
-Public Function Adam_Check(sAddress As Byte) As Boolean
+Public Function Adam_Check(iAddress As Byte) As Boolean
 
     Dim sBuffer As String
 
@@ -179,7 +177,7 @@ Public Function Adam_Check(sAddress As Byte) As Boolean
     ClearBuffer()
 
     ' send the command to the PLC
-    sBuffer = "$" & Format(sAddress, "0#") & "M"
+    sBuffer = "$" & Format(iAddress, "0#") & "M"
     Write #Sport, sBuffer & Chr(13), Len(sBuffer) + 1
 
     ' get the data from the PLC
@@ -206,17 +204,17 @@ Catch ' some errors
 
 End Function
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get the data from the serial port
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Function GetBuffer(fT As Float) As String
 
-    Dim tTimeout As Float
+    Dim fTimeout As Float
     Dim sBuffer As String
     Dim sString As String
 
     ' set the timeout
-    tTimeout = Timer + (fT / 1000) ' milliseconds -> seconds
+    fTimeout = Timer + (fT / 1000) ' milliseconds -> seconds
 
     ' wait for the data to come
     Do
@@ -226,9 +224,9 @@ Function GetBuffer(fT As Float) As String
             sBuffer = sBuffer & sString
         End If
         Wait
-    Loop Until (Timer >= tTimeout) Or InStr(sBuffer, sDELIMITER) > 0
+    Loop Until (Timer >= fTimeout) Or InStr(sBuffer, sDELIMITER) > 0
 
-    If Timer >= tTimeout Then Return "" ' timeout
+    If Timer >= fTimeout Then Return "" ' timeout
     Return sBuffer ' all ok
 
 Catch ' some errors
@@ -237,9 +235,9 @@ Catch ' some errors
 End
 
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' clear the serial port buffer
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Sub ClearBuffer()
 
     Dim sString As String
@@ -249,10 +247,10 @@ Catch ' some errors
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' log any error into a flat file
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Private Sub LogError(msg As String)
+'
+Private Sub LogError(sMsg As String)
 
     Dim LogFile As String
     Dim hFile As File
@@ -264,10 +262,10 @@ Private Sub LogError(msg As String)
     hFile = Open LogFile For Append
 
     ' add the date and time
-    msg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & msg
+    sMsg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & sMsg
 
     ' write down to the file
-    Print #hFile, msg
+    Print #hFile, sMsg
 
 Finally ' Always executed, even if an error raised
 
@@ -279,9 +277,9 @@ Catch ' Executed only if there is an error
 End
 
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' functions
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' Implements the SerialPort property
 Function SerialPort_Read() As String
 
@@ -302,9 +300,9 @@ Function PortNo_Read() As Byte
 
 End
 
-Sub PortNo_Write(sValue As Byte)
+Sub PortNo_Write(iValue As Byte)
 
-    iPortNo = sValue
+    iPortNo = iValue
 
 End
 

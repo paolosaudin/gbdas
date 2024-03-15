@@ -2,6 +2,7 @@
 
 { Form Form
   MoveScaled(0,0,90,84)
+  #Translate = False
   Icon = Picture["pics/amor.png"]
   { mnuMain Menu
     Text = Shortcut(("Main"), "M")

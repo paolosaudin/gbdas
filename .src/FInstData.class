@@ -1,13 +1,10 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : show the instantaneous values
-'
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' constructor : set the column view columns
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _new()
 
     With colRawData
@@ -21,9 +18,9 @@ Public Sub _new()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' load all the form and show the raw values
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub ShowValues()
 
     ' get new values and show them
@@ -37,9 +34,9 @@ Catch ' error handling
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' get the values and load them all into a column view control
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub btnRefresh_Click()
 
     Dim fArr As Float[]
@@ -48,13 +45,13 @@ Public Sub btnRefresh_Click()
     Dim k As String
 
     ' draw the serial port led
-    FormMain.DrawEvent("com", "on")
+    FMain.DrawEvent("com", "on")
 
     ' get the raw values
-    fArr = ModuleMain.adm.Adam_4017Input(ModuleMain.ost.AdamId)
+    fArr = MMain.adm.Adam_4017Input(MMain.ost.AdamId)
 
     ' draw the serial port led
-    FormMain.DrawEvent("com", "off")
+    FMain.DrawEvent("com", "off")
 
     ' clear the column list
     colRawData.Clear

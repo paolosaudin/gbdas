@@ -1,16 +1,15 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : main form
-'
+
+
 ' return value to aware the main form about changes
 Property SetupChanged As Boolean
 Private bSetupChanged As Boolean
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' main procedure
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Form_Open()
 
     ' main form
@@ -43,7 +42,7 @@ Public Sub Form_Open()
     tmrPolling.Delay = 1000
 
     '#8 general options
-    If ModuleMain.bAutoStart = True Then
+    If MMain.bAutoStart = True Then
         ' set some stuff
         picPolling.Picture = picRun.Picture
         'mnuRun.Picture=picRun.Picture
@@ -80,16 +79,15 @@ Public Sub Form_Open()
 
 Catch ' error trap
     message.Error(ERROR.Text)
-    ModuleMain.LogEvent(ERROR.Text)
+    MMain.LogEvent(ERROR.Text)
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' load all the parameters into a column view control
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub LoadParameters()
 
-    Dim p As ClassParameter
     Dim sId As String
     Dim sText As String
 
@@ -110,7 +108,7 @@ Public Sub LoadParameters()
     'colMain.Columns[5].AutoResize=TRUE
     'colMain.Columns.Adjust
 
-    For Each p In ModuleMain.ost.Parameters
+    For Each p As CParameter In MMain.ost.Parameters
         If p.Active Then
             sId = Format(p.Id, "0#")
             sText = p.Name
@@ -125,12 +123,12 @@ Public Sub LoadParameters()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' fill the labels and other stuff
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Sub RefreshPanel()
 
-    With ModuleMain.ost
+    With MMain.ost
         lblPicStation.Caption = .Name
         lblPicCode.Caption = .Code
         lblPicAcqInt.Caption = .AcquisitionInterval & " seconds"
@@ -145,9 +143,9 @@ Catch
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' manage the resize event
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub Form_Resize()
 
     pnlTop.Width = Me.ClientW
@@ -169,15 +167,15 @@ Catch ' error trap
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' open the setup form in a modal way
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub mnuConfigStation_Click()
 
-    Dim f As New FormSetupStation
+    Dim f As New FSetupStation
 
     'log
-    ModuleMain.LogEvent("editing setup")
+    MMain.LogEvent("editing setup")
 
     Me.SetupChanged = False
 
@@ -186,7 +184,7 @@ Public Sub mnuConfigStation_Click()
 
     ' call the main procedure which load the form and wait
     ' for the user action
-    f.ShowForm(ModuleMain.ost)
+    f.ShowForm(MMain.ost)
     f = Null
 
     ' if the user has performed some changes..
@@ -194,7 +192,7 @@ Public Sub mnuConfigStation_Click()
 
         ' log the event
         AddEvent("configuration has changed !", 2)
-        ModuleMain.LogEvent("configuration has changed !")
+        MMain.LogEvent("configuration has changed !")
 
         ' ... update any changes
         '# load the parameters into column view
@@ -210,18 +208,13 @@ Catch ' error trap
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' exit the application after a user confirmation
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub mnuExit_Click()
 
-    Dim ret As Variant
-
-    ' ask the user about exiting the appp
-    ret = message.Question("Do you really want to exit the application ?", "Yes", "No")
-
-    ' if the user chose Yes really abandon the application
-    If ret = 1 Then
+    ' ask the user about exiting the app
+    If Message.Question("Do you really want to exit the application ?", "Yes", "No") Then
 
         ' stop the timers to avoid circular references
         tmrTime.Enabled = False
@@ -233,7 +226,7 @@ Public Sub mnuExit_Click()
         'WAIT 0.5
 
         ' close the serial port
-        ModuleMain.adm.CloseDevice()
+        MMain.adm.CloseDevice()
 
         ' close the app
         Me.close
@@ -243,9 +236,9 @@ Public Sub mnuExit_Click()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' this timer refresh the time label
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub tmrTime_Timer()
 
     ' show the current time
@@ -253,15 +246,15 @@ Public Sub tmrTime_Timer()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' save a new mean
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Function SaveNewMean() As Boolean
 
-    Dim p As ClassParameter
+    Dim p As CParameter
 
     ' minimum readings check
-    For Each p In ModuleMain.ost.Parameters                          ' see CParameterData class
+    For Each p In MMain.ost.Parameters                          ' see CParameterData class
         If p.Data.Readings < p.MinReadings Then p.Data.ValCode = p.Data.ValCode Or 16
     Next
 
@@ -269,13 +262,13 @@ Function SaveNewMean() As Boolean
     DrawEvent("db", "on")
 
     ' save the mean into the database
-    ModuleMain.dbh.SaveNewMean(ModuleMain.ost)
+    MMain.dbh.SaveNewMean(MMain.ost)
 
     ' draw the db status led
     DrawEvent("db", "off")
 
     ' reset all the values
-    For Each p In ModuleMain.ost.Parameters
+    For Each p In MMain.ost.Parameters
         With p.Data
             .RawValue = 0
             .LastValue = 0
@@ -294,17 +287,17 @@ Function SaveNewMean() As Boolean
     Next
 
 Catch ' error trap
-    ModuleMain.LogEvent(ERROR.Text)
+    MMain.LogEvent(ERROR.Text)
 
 End Function
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' this timer deal with polling data
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub tmrPolling_Timer()
 
     ' check if we need to calculate a new mean
-    If Minute(Now) Mod ModuleMain.ost.IntTime = 0 And Second(Now) = 0 Then
+    If Minute(Now) Mod MMain.ost.IntTime = 0 And Second(Now) = 0 Then
         'PRINT "NEW MEAN ", Now
 
         '---------------------- NEW MEAN ---------------------------
@@ -314,13 +307,13 @@ Public Sub tmrPolling_Timer()
         ' save a new mean and reset the parameter' values
         SaveNewMean()
 
-    Else If Second(Now) Mod ModuleMain.ost.AcquisitionInterval = 0 Then
+    Else If Second(Now) Mod MMain.ost.AcquisitionInterval = 0 Then
         'PRINT "NEW ACQUISITION ", Now
 
         '---------------------- NEW ACQUISITION ---------------------------
 
         ' call the polling procedure
-        If Not ModuleMain.Polling() Then
+        If Not MMain.Polling() Then
             ' log the event
             AddEvent("errors getting data", 4)
         End If
@@ -329,13 +322,13 @@ Public Sub tmrPolling_Timer()
         RefreshData()
 
         ' save the latest values into the database if requested
-        If ModuleMain.ost.SaveRawData Then
+        If MMain.ost.SaveRawData Then
 
             ' draw the db status led
             DrawEvent("db", "on")
 
             ' save the data in the MySql db and flat files
-            ModuleMain.dbh.SaveRawValues(ModuleMain.ost)
+            MMain.dbh.SaveRawValues(MMain.ost)
 
             ' draw the db status led
             DrawEvent("db", "off")
@@ -345,16 +338,15 @@ Public Sub tmrPolling_Timer()
     End If
 
 Catch ' error trap
-    ModuleMain.LogEvent(ERROR.Text)
+    MMain.LogEvent(ERROR.Text)
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' refresh the parameters' data
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub RefreshData()
 
-    Dim p As ClassParameter
     Dim k As String
     Dim v As New Variant[]
 
@@ -364,7 +356,7 @@ Public Sub RefreshData()
     v.Add(Format(Now, "hh:nn:ss"))
 
     ' loop through all the elements
-    For Each p In ModuleMain.ost.Parameters
+    For Each p As CParameter In MMain.ost.Parameters
         If p.Active Then
             k = Format(p.Id, "0#")
             colMain[k][1] = p.Data.ValCode
@@ -379,33 +371,28 @@ Public Sub RefreshData()
     Next
 
     ' send the value to the table form
-    If ModuleMain.FGrid Then FormTable.ShowData(v)
+    If MMain.FGrid Then FTable.ShowData(v)
     ' send the value to the plot form
-    If ModuleMain.FChart Then FormPlot.DrawChart(v)
+    If MMain.FChart Then FChart.DrawChart(v)
 
 End
 
 Public Sub mnuAbout_Click()
 
-    Dim hForm As FormAbout
+    Dim hForm As FAbout
 
-    hForm = New FormAbout
+    hForm = New FAbout
     hForm.ShowModal()
 
 End
 
 Public Sub mnuRun_Click()
 
-    Dim ret As Variant
-
     ' check the current state
     If mnuRun.Checked = True Then ' running
 
-        ' ask the user about exiting the appp
-        ret = message.Question("Do you really want to stop the acquisition ?", "Yes", "No")
-
-        ' if the user chose Yes then we stop the acquisition
-        If ret = 1 Then
+        ' ask the user about exiting the app
+        If Message.Question("Do you really want to stop the acquisition ?", "Yes", "No") Then
 
             ' set some stuff
             mnuRun.Checked = False
@@ -419,7 +406,7 @@ Public Sub mnuRun_Click()
 
             ' log the event
             AddEvent("polling stopped", 2)
-            ModuleMain.LogEvent("polling stopped")
+            MMain.LogEvent("polling stopped")
 
         End If
 
@@ -434,7 +421,7 @@ Public Sub mnuRun_Click()
 
         ' log the event
         AddEvent("polling started", 1)
-        ModuleMain.LogEvent("polling started")
+        MMain.LogEvent("polling started")
 
         ' start the timer
         tmrPolling.Enabled = True
@@ -466,7 +453,7 @@ End
 
 Public Sub btnInst_Click()
 
-    Dim f As New FormInstData
+    Dim f As New FInstData
 
     ' show up the form
     f.ShowValues()
@@ -477,19 +464,19 @@ Public Sub btnInst_Click()
 
 End
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' draw an event
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Public Sub DrawEvent(type As String, status As String)
+'
+Public Sub DrawEvent(sType As String, sStatus As String)
 
-    If type = "com" Then ' serial port
-        If status = "on" Then
+    If sType = "com" Then ' serial port
+        If sStatus = "on" Then
             picCom.Picture = picRed.Picture
         Else
             picCom.Picture = picReady.Picture
         End If
     Else ' database "db"
-        If status = "on" Then
+        If sStatus = "on" Then
             picDbase.Picture = picRed.Picture
         Else
             picDbase.Picture = picReady.Picture
@@ -507,15 +494,15 @@ Function SetupChanged_Read() As Boolean
 
 End
 
-Sub SetupChanged_Write(sValue As Boolean)
+Sub SetupChanged_Write(bValue As Boolean)
 
-    bSetupChanged = sValue
+    bSetupChanged = bValue
 
 End
 
-' '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' '
 ' ' wait for synchronization time to get a sharp polling
-' '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' '
 ' PUBLIC SUB WaitSynchroTime()
 '
 '   ' mouse pointer
@@ -531,9 +518,9 @@ End
 '
 ' END
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' log an event to the event list
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Sub AddEvent(s As String, t As Byte)
 
     Dim sId As String
@@ -552,7 +539,7 @@ Sub AddEvent(s As String, t As Byte)
     colEvents[sId][1] = s
 
 Catch ' error trap
-    ModuleMain.LogEvent(ERROR.Text)
+    MMain.LogEvent(ERROR.Text)
 
 End
 
@@ -575,15 +562,15 @@ End
 Public Sub btnTable_Click()
 
     ' load and show up the table form
-    FormTable.Load
-    FormTable.Show
+    FTable.Load
+    FTable.Show
 
 End
 
 Public Sub btnChart_Click()
 
     ' load and show up the plotting form
-    FormPlot.Load
-    FormPlot.Show
+    FChart.Load
+    FChart.Show
 
 End

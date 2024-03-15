@@ -1,6 +1,6 @@
 # Gambas Project File 3.0
 Title=gbdas
-Startup=ModuleMain
+Startup=MMain
 Version=0.0.5
 Component=gb.image
 Component=gb.gui
@@ -16,5 +16,5 @@ Description="real-time data acquisition software"
 Authors="paolo saudin"
 TabSize=4
 Language=it
-ForceBytecodeVersion=3.8
+CheckVariablePrefix=1
 Packager=1

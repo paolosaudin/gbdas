@@ -1,9 +1,8 @@
 ' Gambas class file
 
-' $Author$
-' $Revision$
 ' Purpose : public variables and objects
-'
+
+
 ' Alarms 3 bytes (all ON) 127
 ' OR  0      =  Valid
 ' OR  1      =  pre alarm threshold
@@ -40,9 +39,9 @@ Private dMaximumTime As Date
 Private fStdDev As Float
 Private fPreviousValue As Float
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 ' constructor
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'
 Public Sub _new()
 
     dMinimumTime = Date

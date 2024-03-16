@@ -26,8 +26,14 @@ Public Sub Main()
     Dim bErr As Boolean
 
     ' Application.Path -> /home/paolo/projects/gbdas
+    ' https://gambaswiki.org/wiki/comp/gb/application
     Print "Application.Path: " & Application.Path
+    ' https://gambaswiki.org/wiki/comp/gb/user
+    Print "User.Name: " & User.Name
     Print "User.Home: " & User.Home
+
+    Print "System.Architecture: " & System.Architecture
+    Print "System.TimeZone: " & System.TimeZone
 
     '#0 crate standard ini file if missed
     Config_CreateFile()
@@ -71,11 +77,21 @@ Public Sub Main()
     Me.LogEvent("Sarted up !")
 
 Catch ' error trap
-    
+
     Me.LogEvent(ERROR.Text)
     message.Error(ERROR.Text)
     Quit
-    
+
+End
+
+'
+' this handler intercepts each call to the ERROR or DEBUG instruction
+'
+Public Sub Application_Log(Text As String, Where As String)
+
+    message.Error(Text)
+    message.Error(Where)
+
 End
 
 '
@@ -98,10 +114,10 @@ Function Initialize_Database() As Boolean
     End If
 
 Catch ' error trap
-    
+
     Me.LogEvent(DConv(ERROR.Text))
     Return False
-    
+
 End
 
 '
@@ -139,7 +155,7 @@ Function Initialize_Station() As Boolean
     End If
 
 Catch ' error trap
-    
+
     Me.LogEvent(ERROR.Text)
     Return False
 
@@ -170,7 +186,7 @@ Function Initialize_Adam() As Boolean
     End If
 
 Catch ' error trap
-    
+
     Me.LogEvent(ERROR.Text)
     Return False
 
@@ -304,12 +320,12 @@ Public Function Polling() As Boolean
     End If
 
 Finally' Always executed, even if an error raised
-    
+
     ' program not busy any more
     bBusy = False
 
 Catch ' error trap
-    
+
     Me.LogEvent(ERROR.Text)
 
 End
@@ -377,12 +393,12 @@ Public Sub Config_CreateFile()
 
     ' get file name
     sConfigFile = Application.Path &/ Application.Name & ".conf"
-    
+
     ' check if exist
     If Exist(sConfigFile) Then
-        Return 
+        Return
     Endif
-    
+
     hSettings = New Settings(sConfigFile)
 
     hSettings["App/autostart"] = 0

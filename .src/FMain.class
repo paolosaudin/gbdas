@@ -2,7 +2,6 @@
 
 ' Purpose : main form
 
-
 ' return value to aware the main form about changes
 Property SetupChanged As Boolean
 Private bSetupChanged As Boolean

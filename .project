@@ -2,6 +2,7 @@
 Title=gbdas
 Startup=MMain
 Version=0.0.5
+VersionFile=1
 Component=gb.image
 Component=gb.gui
 Component=gb.form

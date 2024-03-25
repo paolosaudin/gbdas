@@ -78,8 +78,9 @@ Public Sub Main()
 
 Catch ' error trap
 
-    Me.LogEvent(ERROR.Text)
-    message.Error(ERROR.Text)
+    Me.LogEvent(Error.Text)
+    Me.LogError(Error.Text, Error.Where, Error.BackTrace)
+    message.Error(Error.Text)
     Quit
 
 End
@@ -355,7 +356,7 @@ Public Function GetValues() As Variant
 End
 
 '
-' log any error into a flat file
+' log event into a flat file
 '
 Public Sub LogEvent(sMsg As String)
 
@@ -373,6 +374,50 @@ Public Sub LogEvent(sMsg As String)
 
     ' write down to the file
     Print #hFile, sMsg
+
+Finally ' Always executed, even if an error raised
+
+    Close #hFile
+
+Catch ' Executed only if there is an error
+    ' do nothing
+
+End
+
+'
+' log error into a flat file
+'
+Public Sub LogError(sText As String, sWhere As String, sBacktrace As String[])
+
+    Dim LogFile As String
+    Dim hFile As File
+    Dim sMsg As String
+
+    ' get the general log file name
+    LogFile = Application.Path &/ "logs/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
+
+    ' add the date and time
+    sMsg = Format(Now, "dddd dd @ hh:nn:ss") & " -> "
+
+    Dim sResult As String = Null
+    sResult &= Subst("\r\nError: '&1'\r\nLine: '&2'\r\nTrace: \r\n", sText, sWhere)
+    If Not IsNull(sBacktrace) Then
+        For Each sLine As String In sBacktrace
+            sResult &= Subst("'&1'\r\n", sLine)
+        Next
+    Endif
+    If sResult Then
+        sMsg &= sResult
+    Endif
+
+    ' open the file
+    hFile = Open LogFile For Append
+
+    ' write down to the file
+    Print #hFile, sMsg
+
+    'Dim sResult As String = Null
+    'sResult &= Subst("Name: &1\r\nTitle: &2\r\nVersion: &3\r\nProcess: &4\r\nPath: &5\r\n", Application.Name, Application.Title, 'Application.Version, Application.Id, Application.Path)
 
 Finally ' Always executed, even if an error raised
 

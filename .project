@@ -1,8 +1,7 @@
 # Gambas Project File 3.0
 Title=gbdas
 Startup=MMain
-Version=0.0.5
-VersionFile=1
+Version=0.0.1
 Component=gb.image
 Component=gb.gui
 Component=gb.form
@@ -13,8 +12,9 @@ Component=gb.desktop
 Component=gb.form.htmlview
 Component=gb.settings
 Component=gb.net
-Description="real-time data acquisition software"
-Authors="paolo saudin"
+Component=gb.markdown
+Description="Real-time data acquisition software"
+Authors="Paolo Saudin <paolosaudin@gmail.com>"
 TabSize=4
 Language=it
 CheckVariablePrefix=1

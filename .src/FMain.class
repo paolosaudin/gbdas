@@ -25,7 +25,10 @@ Public Sub Form_Open()
     panMain.Visible = False
 
     ' event column view
+    colEvents.AutoResize = True
+    colEvents.Resizable = False
     colEvents.Columns.Count = 2
+    colEvents.Columns[0].Expand = False
     colEvents.Columns[0].Text = "Date"
     colEvents.Columns[0].Width = 250
     colEvents.Columns[1].Text = "Event"
@@ -54,7 +57,8 @@ Public Sub Form_Open()
         btnInst.Enabled = False
 
     Else
-        picPolling.Picture = picNotOk.Picture
+        picPolling.Picture = picStop.Picture
+
         mnuRun.Checked = False
         ' user can get instant data
         btnInst.Enabled = True
@@ -111,7 +115,7 @@ Public Sub LoadParameters()
         If p.Active Then
             sId = Format(p.Id, "0#")
             sText = p.Name
-            colMain.Add(sId, sText, picPr.Picture)
+            colMain.Add(sId, sText, picListArrow.Picture)
             colMain[sId][1] = "----"
             colMain[sId][2] = "----" 'p.Data.LastValue
             colMain[sId][3] = "----" 'p.Data.Mean
@@ -119,6 +123,10 @@ Public Sub LoadParameters()
             colMain[sId][5] = "----" 'p.Data.RawValue
         End If
     Next
+
+Catch ' error trap
+    message.Error(ERROR.Text)
+    MMain.LogEvent(ERROR.Text)
 
 End
 
@@ -149,18 +157,22 @@ Public Sub Form_Resize()
 
     pnlTop.Width = Me.ClientW
 
-    panMain.W = Me.ClientW
-    panMain.H = Me.ClientH - panMain.Top - pnlBottom.H
-
-    pnlBottom.W = Me.ClientW
+    pnlBottom.Width = Me.ClientW
     pnlBottom.Top = Me.ClientH - pnlBottom.H
-    lblTime.Left = Me.ClientW - lblTime.W - 5
 
-    colMain.H = Me.ClientH - pnlBottom.H - colEvents.H
     colMain.W = Me.ClientW
+    colMain.Top = pnlTop.H
+    colMain.H = Me.ClientH - pnlTop.H - pnlBottom.H - colEvents.H
 
+    panMain.W = Me.ClientW
+    panMain.Top = pnlTop.H
+    panMain.H = Me.ClientH - pnlTop.H - pnlBottom.H - colEvents.H
+
+    colEvents.Width = Me.ClientW
     colEvents.Top = Me.ClientH - colEvents.H - pnlBottom.H
-    colEvents.w = Me.ClientW
+    'colEvents.Columns[1].Width = Me.ClientW - colEvents.Columns[0].Width - 5
+
+    lblTime.Left = Me.ClientW - lblTime.W - 5
 
 Catch ' error trap
 
@@ -232,6 +244,9 @@ Public Sub mnuExit_Click()
         'QUIT
 
     End If
+
+Catch ' error trap
+    message.Error(ERROR.Text)
 
 End
 
@@ -374,6 +389,9 @@ Public Sub RefreshData()
     ' send the value to the plot form
     If MMain.FChart Then FChart.DrawChart(v)
 
+Catch ' error trap
+    message.Error(ERROR.Text)
+
 End
 
 Public Sub mnuAbout_Click()
@@ -395,7 +413,7 @@ Public Sub mnuRun_Click()
 
             ' set some stuff
             mnuRun.Checked = False
-            picPolling.Picture = picNotOk.Picture
+            picPolling.Picture = picStop.Picture
 
             ' stop the timer
             tmrPolling.Enabled = False
@@ -470,19 +488,21 @@ Public Sub DrawEvent(sType As String, sStatus As String)
 
     If sType = "com" Then ' serial port
         If sStatus = "on" Then
-            picCom.Picture = picRed.Picture
+            picCom.Picture = picStatusOk.Picture
         Else
-            picCom.Picture = picReady.Picture
+            picCom.Picture = picStatusErr.Picture
         End If
     Else ' database "db"
         If sStatus = "on" Then
-            picDbase.Picture = picRed.Picture
+            picDbase.Picture = picStatusOk.Picture
         Else
-            picDbase.Picture = picReady.Picture
+            picDbase.Picture = picStatusErr.Picture
         End If
     End If
 
     Wait
+
+Catch ' error trap
 
 End
 
@@ -527,18 +547,17 @@ Sub AddEvent(s As String, t As Byte)
     sId = Str(colEvents.Count)
     Select Case t
         Case 1 ' info
-            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picE1.Picture)
+            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picListInfo.Picture)
         Case 2 ' alert
-            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picE2.Picture)
+            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picListAlert.Picture)
         Case 3 ' error
-            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picE3.Picture)
+            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picListError.Picture)
         Case 4 ' database
-            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picE4.Picture)
+            colEvents.Add(sId, Format(Now, " dddd hh:nn:ss"), picListDb.Picture)
     End Select
     colEvents[sId][1] = s
 
 Catch ' error trap
-    MMain.LogEvent(ERROR.Text)
 
 End
 
@@ -571,5 +590,9 @@ Public Sub btnChart_Click()
     ' load and show up the plotting form
     FChart.Load
     FChart.Show
+
+End
+
+Public Sub lblTime_MouseDown()
 
 End

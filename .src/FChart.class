@@ -161,7 +161,6 @@ Public Sub DrawChart(y As Variant[])
     Chart.Type = ChartType.Lines                                                    'Type of chart
     da.Refresh                                                            'Refresh the Drawing area
 
-
 Catch ' errors
     Message.Error(Error.Text)
 

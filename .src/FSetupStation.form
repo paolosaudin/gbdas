@@ -1,364 +1,369 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,64,64)
-  Icon = Picture["pics/pen.png"]
+  MoveScaled(0,0,83,58)
+  Icon = Picture["icon:/small/home"]
   Resizable = False
   { TabStrip1 TabStrip
-    MoveScaled(1,1,58,45)
+    MoveScaled(1,1,81,52)
     Count = 2
     Orientation = Align.Bottom
     Index = 0
     Text = ("Station")
-    Picture = Picture["pics/home.png"]
+    Picture = Picture["icon:/small/home"]
     { cboAcquisition ComboBox stChangeEvent
       Name = "cboAcquisition"
-      MoveScaled(23.5,14,24.5,3)
+      MoveScaled(24,14,24,3)
       ToolTip = ("The interval between two acqisitions")
       ReadOnly = True
     }
     { cboIntegration ComboBox stChangeEvent
       Name = "cboIntegration"
-      MoveScaled(23.5,18,24.5,3)
+      MoveScaled(24,18,24,3)
       ToolTip = ("The means integration time")
       ReadOnly = True
     }
     { cboComPort ComboBox stChangeEvent
       Name = "cboComPort"
-      MoveScaled(23.5,22,24.5,3)
+      MoveScaled(24,22,24,3)
       ToolTip = ("The serial port you want to use")
       ReadOnly = True
       Text = (" ")
     }
     { cboAdamId ComboBox stChangeEvent
       Name = "cboAdamId"
-      MoveScaled(23.5,26,24.5,3)
+      MoveScaled(24,26,24,3)
       ToolTip = ("The ID of the Adam 4000")
       ReadOnly = True
       Text = (" ")
     }
     { chkFtp CheckBox stChangeEvent
       Name = "chkFtp"
-      MoveScaled(23.5,31,2,2)
+      MoveScaled(24,30,3,3)
       ToolTip = ("Export file in a shared path")
     }
     { Label8 Label
-      MoveScaled(2.5,31,9,2)
+      MoveScaled(2,30,20,3)
       ToolTip = ("Export file in a shared path")
-      Text = ("Ftp export :")
+      Text = ("Ftp export:")
     }
     { Label6 Label
-      MoveScaled(2.5,26,8,3)
-      Text = ("Adam id :")
+      MoveScaled(2,26,20,3)
+      Text = ("Adam id:")
     }
     { Label5 Label
-      MoveScaled(2.5,22,14,3)
-      Text = ("Comunication port :")
+      MoveScaled(2,22,20,3)
+      Text = ("Serial port:")
     }
     { Label4 Label
-      MoveScaled(2.5,18,12,3)
-      Text = ("Integration time :")
+      MoveScaled(2,18,20,3)
+      Text = ("Integration time:")
     }
     { Label3 Label
-      MoveScaled(2.5,14,15,3)
-      Text = ("Acquisition interval :")
+      MoveScaled(2,14,20,3)
+      Text = ("Acquisition interval:")
     }
     { Label2 Label
-      MoveScaled(2.5,10,11,3)
-      Text = ("Station code :")
+      MoveScaled(2,10,20,3)
+      Text = ("Station code:")
     }
     { Label1 Label
-      MoveScaled(2.5,6.5,11,2)
-      Text = ("Station name :")
+      MoveScaled(2,7,20,3)
+      Text = ("Station name:")
     }
     { txtName TextBox stChangeEvent
       Name = "txtName"
-      MoveScaled(23.5,6.5,23.5,2)
+      MoveScaled(24,6,24,3)
       ToolTip = ("This is the station name. It can be anything you want !")
       MaxLength = 25
       Border = False
     }
     { txtCode TextBox stChangeEvent
       Name = "txtCode"
-      MoveScaled(23.5,10,7,2)
+      MoveScaled(24,10,24,3)
       ToolTip = ("This is the code of the selected parameter. It never change !")
       MaxLength = 5
       Border = False
     }
     { Label18 Label
-      MoveScaled(4,1.5,10,2)
-      Font = Font["Helvetica,12,Bold"]
+      MoveScaled(2,1,14,4)
+      Font = Font["Noto Mono,Bold,12"]
       Text = ("Station")
     }
     { PictureBox1 PictureBox
-      MoveScaled(24.5,1,4,4)
-      Picture = Picture.Load("pics/folder_home.png")
+      MoveScaled(23,0,5,5)
+      Picture = Picture.Load("icon:/large/home")
     }
     { Label19 Label
-      MoveScaled(2.5,34.5,20,2)
-      Text = ("Save raw data to database :")
+      MoveScaled(2,34,20,3)
+      Text = ("Save raw data:")
     }
     { chkRaw CheckBox stChangeEvent
       Name = "chkRaw"
-      MoveScaled(23.5,34.5,2,2)
+      MoveScaled(24,34,3,3)
       ToolTip = ("Export file in a shared path")
     }
     { chkFtpBzip CheckBox stChangeEvent
       Name = "chkFtpBzip"
-      MoveScaled(45.5,31,2,2)
+      MoveScaled(45,30,3,3)
       ToolTip = ("Export data in bzip2 format\n")
     }
     { Label30 Label
-      MoveScaled(30.5,31,11,2)
+      MoveScaled(29,30,14,3)
       ToolTip = ("Export data in bzip2 format\n")
-      Text = ("Ftp compress :")
+      Text = ("Ftp compress:")
     }
     { chkFtpRawData CheckBox stChangeEvent
       Name = "chkFtpRawData"
-      MoveScaled(45.5,34.5,2,2)
+      MoveScaled(45,34,3,3)
       ToolTip = ("Export raw data in flat files")
     }
     { Label31 Label
-      MoveScaled(30.5,34.5,12.5,2)
+      MoveScaled(29,34,16,3)
       ToolTip = ("Export raw data in flat files")
-      Text = ("Export raw data :")
+      Text = ("Export raw data:")
     }
     Index = 1
     Text = ("Parameters")
-    Picture = Picture["pics/control.png"]
+    Picture = Picture["icon:/small/pin"]
     { lstPars ListBox
-      MoveScaled(1,4,15,23)
+      MoveScaled(2,4,27,29)
       ToolTip = ("The available parameters")
     }
     { Label7 Label
-      MoveScaled(1,1,10,2)
-      Font = Font["Helvetica,12,Bold"]
+      MoveScaled(2,1,18,3)
+      Font = Font["Noto Mono,Bold,12"]
       Text = ("Parameters")
     }
     { btnPrCancel Button
-      MoveScaled(3,33.5,11,3.5)
+      MoveScaled(17,34,11,3.5)
       Enabled = False
       ToolTip = ("Abandon the changes")
       Text = Shortcut(("Cancel"), "C")
-      Picture = Picture["pics/button_cancel.png"]
+      Picture = Picture["icon:/small/cancel"]
     }
     { btnPrSave Button
-      MoveScaled(3,28.5,11,3.5)
+      MoveScaled(1,34,11,3.5)
       Enabled = False
       ToolTip = ("Save the current changes")
       Text = Shortcut(("Save"), "S")
-      Picture = Picture["pics/button_ok.png"]
+      Picture = Picture["icon:/small/save"]
     }
     { tabParametes TabStrip
-      MoveScaled(17,4,35,34)
+      MoveScaled(31,4,48,36)
       Count = 3
       Orientation = Align.Bottom
       Index = 0
       Text = ("Typology")
       { Label9 Label
-        MoveScaled(1,1,3,2)
+        MoveScaled(1,1,15,3)
         Text = ("Id :")
       }
       { Label10 Label
-        MoveScaled(1,4,6,2)
+        MoveScaled(1,4,15,3)
         Text = ("Active :")
       }
       { Label11 Label
-        MoveScaled(1,7,6,2)
+        MoveScaled(1,7,15,3)
         Text = ("Name :")
       }
       { chkPrActive CheckBox prChangeEvent
         Name = "chkPrActive"
-        MoveScaled(12,4,3,2)
+        MoveScaled(15,4,3,3)
         ToolTip = ("The parameter status")
       }
       { txtPrName TextBox
-        MoveScaled(12,7,20,2)
+        MoveScaled(15,7,21,3)
         ToolTip = ("Simply the parameter name")
         MaxLength = 25
         Border = False
       }
       { txtPrUnit TextBox prChangeEvent
         Name = "txtPrUnit"
-        MoveScaled(12,10,20,2)
+        MoveScaled(15,10,21,3)
         ToolTip = ("The parameter unit")
         MaxLength = 25
         Border = False
       }
       { Label12 Label
-        MoveScaled(1,10,5,2)
+        MoveScaled(1,10,15,3)
         Text = ("Unit :")
       }
       { Label13 Label
-        MoveScaled(1,14,8,2)
+        MoveScaled(1,14,15,3)
         Text = ("Decimals :")
       }
       { cboPrDecimals ComboBox prChangeEvent
         Name = "cboPrDecimals"
-        MoveScaled(12,13.5,21,3)
+        MoveScaled(15,14,21,3)
         ToolTip = ("Number of decimals")
         ReadOnly = True
         Text = (" ")
       }
       { cboPrAlgoritm ComboBox prChangeEvent
         Name = "cboPrAlgoritm"
-        MoveScaled(12,17.5,21,3)
+        MoveScaled(15,18,21,3)
         ToolTip = ("The algorithm you want to use")
         ReadOnly = True
         Text = (" ")
       }
       { Label14 Label
-        MoveScaled(1,18,8,2)
+        MoveScaled(1,18,15,3)
         Text = ("Algorithm :")
       }
       { Label15 Label
-        MoveScaled(1,22,8,2)
+        MoveScaled(1,22,15,3)
         Text = ("Channel :")
       }
       { lblPrId Label
-        MoveScaled(12,1,7,2)
+        MoveScaled(15,1,7,3)
         Background = &HFFFFFF
         ToolTip = ("This is the code of the selected parameter. It never change !")
       }
       { cboPrChannel ComboBox prChangeEvent
         Name = "cboPrChannel"
-        MoveScaled(12,21.5,21,3)
+        MoveScaled(15,22,21,3)
         ToolTip = ("The Adam 4000 channel")
         ReadOnly = True
         Text = (" ")
       }
       { cboPrInputRange ComboBox prChangeEvent
         Name = "cboPrInputRange"
-        MoveScaled(12,25.5,21,3)
+        MoveScaled(15,26,21,3)
         ToolTip = ("Reflect the Adam 400 input range in use")
         ReadOnly = True
         Text = (" ")
       }
       { Label16 Label
-        MoveScaled(1,26,10,2)
+        MoveScaled(1,26,15,3)
         Text = ("Input range :")
       }
       Index = 1
       Text = ("Properties")
       { Label20 Label
-        MoveScaled(1,1.5,15,2)
+        MoveScaled(1,1,20,3)
         Text = ("Lower point value :")
       }
       { Label21 Label
-        MoveScaled(1,5.5,15,2)
+        MoveScaled(1,5,20,3)
         Text = ("Higher point value :")
       }
       { Label22 Label
-        MoveScaled(1,9.5,5,2)
+        MoveScaled(1,9,20,3)
         Text = ("Span :")
       }
       { Label23 Label
-        MoveScaled(1,13.5,5,2)
+        MoveScaled(1,16,20,3)
         Text = ("Offset :")
       }
       { txtPrLowerPointValue TextBox prChangeEvent
         Name = "txtPrLowerPointValue"
-        MoveScaled(16,1.5,17,2)
+        MoveScaled(20,1,18,3)
         ToolTip = ("The value at the first input range value")
         MaxLength = 25
         Border = False
       }
       { txtPrHigherPointValue TextBox prChangeEvent
         Name = "txtPrHigherPointValue"
-        MoveScaled(16,5.5,17,2)
+        MoveScaled(20,5,20,3)
         ToolTip = ("The value at the second input range value")
         MaxLength = 25
         Border = False
       }
       { txtPrSpan TextBox prChangeEvent
         Name = "txtPrSpan"
-        MoveScaled(16,9.5,17,2)
+        MoveScaled(20,9,17,3)
         ToolTip = ("The span value to be applied")
         MaxLength = 25
         Border = False
       }
       { txtPrOffset TextBox prChangeEvent
         Name = "txtPrOffset"
-        MoveScaled(16,13.5,17,2)
+        MoveScaled(20,16,19,3)
         ToolTip = ("The offset value to be applied")
         MaxLength = 25
         Border = False
       }
+      { sldSpan Slider
+        MoveScaled(20,12,14,4)
+        MaxValue = 1
+        Step = 0
+      }
       Index = 2
       Text = ("Filters")
       { Label17 Label
-        MoveScaled(1,1.5,15.5,2)
+        MoveScaled(1,1.5,28.75,3)
         Text = ("Minimum readings  :")
       }
       { txtPrReadings TextBox prChangeEvent
         Name = "txtPrReadings"
-        MoveScaled(20.5,1.5,12.5,2)
+        MoveScaled(30,2,15,3)
         ToolTip = ("The minimun numbers of readings to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { Label24 Label
-        MoveScaled(1,21.5,19,2)
+        MoveScaled(1,21.5,28.75,3)
         Text = ("Minimum admitted value :")
       }
       { txtPrMinValue TextBox prChangeEvent
         Name = "txtPrMinValue"
-        MoveScaled(20.5,21.5,12.5,2)
+        MoveScaled(30,21.5,15,3)
         ToolTip = ("The minimun value accepted to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { Label25 Label
-        MoveScaled(1,25.5,19,2)
+        MoveScaled(1,25.5,28.75,3)
         Text = ("Maximum admitted value :")
       }
       { txtPrMaxValue TextBox prChangeEvent
         Name = "txtPrMaxValue"
-        MoveScaled(20.5,25.5,12.5,2)
+        MoveScaled(30,25.5,15,3)
         ToolTip = ("The maximun value accepted to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { Label26 Label
-        MoveScaled(1,5.5,15,2)
+        MoveScaled(1,5.5,28.75,3)
         Text = ("Pre alarm threshold :")
       }
       { Label27 Label
-        MoveScaled(1,9.5,15,2)
+        MoveScaled(1,9.5,28.75,3)
         Text = ("Alarm threshold :")
       }
       { txtPrPreAlarm TextBox prChangeEvent
         Name = "txtPrPreAlarm"
-        MoveScaled(20.5,5.5,12.5,2)
+        MoveScaled(30,6,15,3)
         ToolTip = ("The minimun numbers of readings to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { txtPrAlarm TextBox prChangeEvent
         Name = "txtPrAlarm"
-        MoveScaled(20.5,9.5,12.5,2)
+        MoveScaled(30,10,15,3)
         ToolTip = ("The minimun numbers of readings to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { Label28 Label
-        MoveScaled(1,13.5,21,2)
+        MoveScaled(1,13.5,28.75,3)
         Text = ("Minimum admitted variation :")
       }
       { Label29 Label
-        MoveScaled(1,17.5,21,2)
+        MoveScaled(1,17.5,28.75,3)
         Text = ("Maximum admitted variation :")
       }
       { txtPrMinVar TextBox prChangeEvent
         Name = "txtPrMinVar"
-        MoveScaled(22.5,13.5,10.5,2)
+        MoveScaled(30,14,15,3)
         ToolTip = ("The minimun value accepted to validate the current mean")
         MaxLength = 25
         Border = False
       }
       { txtPrMaxVar TextBox prChangeEvent
         Name = "txtPrMaxVar"
-        MoveScaled(22.5,17.5,10.5,2)
+        MoveScaled(30,17.5,15,3)
         ToolTip = ("The minimun value accepted to validate the current mean")
         MaxLength = 25
         Border = False
@@ -368,16 +373,16 @@
     Index = 0
   }
   { btnSave Button
-    MoveScaled(29,51,11.5,3.5)
+    MoveScaled(57,54,11.5,3.5)
     Enabled = False
     ToolTip = ("Save the current changes and exit")
     Text = Shortcut(("Save"), "S")
-    Picture = Picture["pics/button_ok.png"]
+    Picture = Picture["icon:/small/save"]
   }
   { btnEsc Button
-    MoveScaled(42,51,11.5,3.5)
+    MoveScaled(70,54,11.5,3.5)
     ToolTip = ("Exit without saving changes")
     Text = Shortcut(("Esc"), "E")
-    Picture = Picture["pics/button_cancel.png"]
+    Picture = Picture["icon:/small/cancel"]
   }
 }

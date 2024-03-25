@@ -84,6 +84,12 @@ Public Sub Form_Open()
 
     ' disable the frame and all the child control as well
     tabParametes.Visible = False
+    sldSpan.MaxValue = 10
+    sldSpan.MinValue = 0
+    sldSpan.Step = 1
+    sldSpan.Value = 1
+Catch ' some errors
+    Message.Error(ERROR.Text)
 
 End
 
@@ -155,7 +161,7 @@ Public Sub btnEsc_Click()
     ' if the user has made some changes it warn him
     If btnSave.Enabled Then
         ' ask for saving
-        If Message.Question("Configuration has chaned. Do you want to save it?", "Yes", "No") Then 
+        If Message.Question("Configuration has chaned. Do you want to save it?", "Yes", "No") Then
             btnSave_Click()
         End If
     End If
@@ -429,5 +435,11 @@ Public Sub txtPrName_Change()
     btnPrCancel.Enabled = True
     btnPrSave.Enabled = True
     txtPrName.Tag = "Changed"
+
+End
+
+Public Sub sldSpan_Change()
+
+    txtPrSpan.Text = sldSpan.Value / 10
 
 End

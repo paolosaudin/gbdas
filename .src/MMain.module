@@ -19,12 +19,14 @@ Public FGrid As Boolean
 Public FChart As Boolean
 
 '
-' the startup routine
+' the main startup routine
 '
 Public Sub Main()
 
-    Dim bErr As Boolean
+    ' error testing
+    'Print "Res: " & (2 / 0)
 
+    ' just testing inofos
     ' Application.Path -> /home/paolo/projects/gbdas
     ' https://gambaswiki.org/wiki/comp/gb/application
     Print "Application.Path: " & Application.Path
@@ -35,34 +37,40 @@ Public Sub Main()
     Print "System.Architecture: " & System.Architecture
     Print "System.TimeZone: " & System.TimeZone
 
-    '#0 crate standard ini file if missed
+    '#1 create application paths if not yet created
+    Create_Paths()
+
+    '#2 create standard ini file if missed
     Config_CreateFile()
 
-    '#1 connect to the database
+    '#3 connect to the database
     If Not Initialize_Database() Then
         message.Error("Impossible to connet to the database !")
         Quit
     End If
 
-    '#2 load the station configuration
+    ' in case of error the app won't start automatically
+    Dim bErr As Boolean
+
+    '#4 load the station configuration
     If Not Initialize_Station() Then
         message.Error("Impossible to load the configuration !")
         bErr = True
     End If
 
-    '#3 create a new Adam istance
+    '#5 create a new Adam istance
     If Not Initialize_Adam() Then
         message.Error("Impossible to use adam module !")
         bErr = True
     End If
 
-    '#4 check Adam comunications
+    '#6 check Adam comunications
     If Not adm.Adam_Check(ost.AdamId) Then
         message("Impossible to connect to the Adam module !")
         bErr = True
     End If
 
-    '#5  load the main form
+    '#7  load the main form
     If Not bErr Then
         bAutoStart = Config_GetValue("App/autostart")
     Else
@@ -70,15 +78,14 @@ Public Sub Main()
         bAutoStart = False
     End If
 
-    '#6  load the main form
+    '#8  load the main form
     FMain.Load
     FMain.Show
 
+    ' log
     Me.LogEvent("Sarted up !")
 
 Catch ' error trap
-
-    Me.LogEvent(Error.Text)
     Me.LogError(Error.Text, Error.Where, Error.BackTrace)
     message.Error(Error.Text)
     Quit
@@ -425,6 +432,29 @@ Finally ' Always executed, even if an error raised
 
 Catch ' Executed only if there is an error
     ' do nothing
+
+End
+
+Private Sub Create_Paths()
+
+    Dim appPath As String
+
+    ' check if exist log path
+    appPath = Application.Path &/ "log/"
+    If Not Exist(appPath) Then
+        Mkdir appPath
+    Endif
+
+    ' check if exist data path
+    appPath = Application.Path &/ "ftp/"
+    If Not Exist(appPath) Then
+        Mkdir appPath
+    Endif
+
+Catch ' error trap
+    Me.LogError(Error.Text, Error.Where, Error.BackTrace)
+    message.Error(Error.Text)
+    Quit
 
 End
 

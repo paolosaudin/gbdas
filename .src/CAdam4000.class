@@ -256,7 +256,7 @@ Private Sub LogError(sMsg As String)
     Dim hFile As File
 
     ' get the mysql log file name
-    LogFile = Application.Path &/ "logs/adam4000-" & Format(Now, "yyyy-mm") & ".log"
+    LogFile = Application.Path &/ "log/adam4000-" & Format(Now, "yyyy-mm") & ".log"
 
     ' open the file
     hFile = Open LogFile For Append

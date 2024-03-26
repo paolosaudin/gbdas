@@ -17,8 +17,6 @@ vgcore.*
 .fuse_hidden*
 .profile/*
 #----
-
 ftp
-logs
-pics
+log
 *.txt

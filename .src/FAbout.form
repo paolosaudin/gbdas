@@ -3,6 +3,7 @@
 { Form Form
   MoveScaled(0,0,44,81)
   Text = ("About Gbdas")
+  Icon = Picture["icon:/small/info"]
   SkipTaskbar = True
   Centered = True
   { butOK Button

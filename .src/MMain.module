@@ -364,7 +364,7 @@ Public Sub LogEvent(sMsg As String)
     Dim hFile As File
 
     ' get the general log file name
-    LogFile = Application.Path &/ "logs/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
+    LogFile = Application.Path &/ "log/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
 
     ' add the date and time
     sMsg = Format(Now, "dddd dd @ hh:nn:ss") & " -> " & sMsg
@@ -394,7 +394,7 @@ Public Sub LogError(sText As String, sWhere As String, sBacktrace As String[])
     Dim sMsg As String
 
     ' get the general log file name
-    LogFile = Application.Path &/ "logs/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
+    LogFile = Application.Path &/ "log/" & Lower$(Application.Title) & "-" & Format(Now, "yyyy-mm") & ".log"
 
     ' add the date and time
     sMsg = Format(Now, "dddd dd @ hh:nn:ss") & " -> "

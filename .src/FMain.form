@@ -3,6 +3,7 @@
 { Form Form
   MoveScaled(0,0,102,79)
   #Translate = False
+  Icon = Picture["icon:/small/gambas"]
   { mnuMain Menu
     Text = Shortcut(("Main"), "M")
     { mnuRun Menu
@@ -180,10 +181,6 @@
       MoveScaled(23,4.125,18.75,3.125)
       AutoResize = True
       Text = ("lblPicFtp")
-    }
-    { PictureBox1 PictureBox
-      MoveScaled(37,15,13,8)
-      Picture = Picture.Load("pics/adam.png")
     }
     { Label10 Label
       MoveScaled(-4,26.25,25,3.125)

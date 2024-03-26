@@ -359,7 +359,7 @@ Public Sub FtpExport(iType As Byte, sData As String, sId As String)
     ' get the log file name
     Select Case iType
         Case 0 ' SQL format
-            sOutFile = Application.Path &/ "logs" &/ sId & "-sql-" & Format(Now, "yyyy-mm") & ".dat"
+            sOutFile = Application.Path &/ "log" &/ sId & "-sql-" & Format(Now, "yyyy-mm") & ".dat"
         Case 1 ' FTP mean format
             sOutFile = Application.Path &/ "ftp" &/ sId & "-" & Format(Now, "yyyy-mm-dd") & ".dat"
         Case 2 ' FTP raw format
@@ -414,7 +414,7 @@ Private Sub LogError(sMsg As String)
     Dim hFile As File
 
     ' get the mysql log file name
-    LogFile = Application.Path &/ "logs/mysql-" & Format(Now, "yyyy-mm") & ".log"
+    LogFile = Application.Path &/ "log/mysql-" & Format(Now, "yyyy-mm") & ".log"
 
     ' open the file
     hFile = Open LogFile For Append

@@ -2,20 +2,20 @@
 
 { Form Form
   MoveScaled(0,0,64,40)
-  Icon = Picture["pics/roll.png"]
+  Icon = Picture["icon:/small/refresh"]
   { colRawData ColumnView
     MoveScaled(1,1,57.5,11.5)
   }
   { btnEsc Button
-    MoveScaled(50,37,13,2.5)
+    MoveScaled(50,35,13,4)
     ToolTip = ("Exit")
     Text = Shortcut(("Esc"), "E")
-    Picture = Picture["pics/button_cancel.png"]
+    Picture = Picture["icon:/small/close"]
   }
   { btnRefresh Button
-    MoveScaled(36,37,13,2.5)
+    MoveScaled(36,35,13,4)
     ToolTip = ("Refresh the values")
     Text = Shortcut(("Refresh"), "R")
-    Picture = Picture["pics/refresh.png"]
+    Picture = Picture["icon:/small/refresh"]
   }
 }
